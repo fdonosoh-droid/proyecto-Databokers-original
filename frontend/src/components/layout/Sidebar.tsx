@@ -108,7 +108,8 @@ export default function Sidebar({ onClose, mobileOpen }: SidebarProps) {
 
   const isActive = (path?: string) => {
     if (!path) return false;
-    return location.pathname === path;
+    // Exact match or starts with the path (for sub-routes)
+    return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
   const renderMenuItem = (item: MenuItem, depth = 0) => (
