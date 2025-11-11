@@ -19,29 +19,83 @@ export interface Project {
   id: string;
   nombre: string;
   inmobiliariaId: string;
+  inmobiliaria?: {
+    nombre: string;
+  };
   direccion: string;
   regionId: string;
+  region?: {
+    nombre: string;
+  };
   comunaId: string;
+  comuna?: {
+    nombre: string;
+  };
   modeloNegocio: string;
   estado: string;
   fechaInicioVentas: string;
   fechaEntrega: string;
   totalUnidades: number;
   unidadesDisponibles: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Typology {
+  id: string;
+  proyectoId: string;
+  nombre: string;
+  tipoPropiedad: string;
+  superficieTotal: number;
+  superficieUtil: number;
+  dormitorios: number;
+  banos: number;
+  estacionamientos: number;
+  bodegas: number;
+  precioDesde: number;
+  precioHasta: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Unit {
+  id: string;
+  proyectoId: string;
+  tipologiaId: string;
+  tipologia?: Typology;
+  numero: string;
+  piso: string;
+  precio: number;
+  superficieTotal: number;
+  superficieUtil: number;
+  estado: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Property {
   id: string;
   tipo: string;
   direccion: string;
+  comunaId?: string;
   comuna: string;
+  regionId?: string;
   region: string;
   precio: number;
   superficie: number;
+  superficieUtil?: number;
   dormitorios: number;
   banos: number;
   estacionamientos: number;
+  bodegas?: number;
   estado: string;
+  modeloNegocio?: string;
+  proyectoId?: string;
+  unidadId?: string;
+  descripcion?: string;
+  imagenes?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface TradeIn {
