@@ -23,6 +23,8 @@ import {
   People,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAppSelector } from '@/redux/hooks';
+import { selectCurrentUser } from '@/redux/slices/authSlice';
 
 const drawerWidth = 240;
 
@@ -31,6 +33,7 @@ interface MenuItem {
   icon: React.ReactElement;
   path?: string;
   children?: MenuItem[];
+  roles?: Array<'ADMIN' | 'GESTOR' | 'CORREDOR'>;
 }
 
 const menuItems: MenuItem[] = [
@@ -38,31 +41,37 @@ const menuItems: MenuItem[] = [
     text: 'Dashboard',
     icon: <Dashboard />,
     path: '/dashboard',
+    roles: ['ADMIN', 'GESTOR'], // Solo ADMIN y GESTOR pueden ver el dashboard
   },
   {
     text: 'Proyectos',
     icon: <Business />,
     path: '/proyectos',
+    roles: ['ADMIN', 'GESTOR'],
   },
   {
     text: 'Propiedades',
     icon: <Home />,
     path: '/propiedades',
+    roles: ['ADMIN', 'GESTOR'],
   },
   {
     text: 'Canjes',
     icon: <SwapHoriz />,
     path: '/canjes',
+    roles: ['ADMIN', 'GESTOR'],
   },
   {
     text: 'Publicaciones',
     icon: <Campaign />,
     path: '/publicaciones',
+    // Todos los roles pueden ver publicaciones
   },
   {
     text: 'Reportes',
     icon: <Assessment />,
     path: '/reportes',
+    roles: ['ADMIN', 'GESTOR'],
   },
 ];
 
@@ -70,6 +79,7 @@ const adminMenuItems: MenuItem[] = [
   {
     text: 'Administración',
     icon: <Settings />,
+    roles: ['ADMIN'], // Solo ADMIN puede ver la administración
     children: [
       {
         text: 'Usuarios',
@@ -93,6 +103,7 @@ interface SidebarProps {
 export default function Sidebar({ onClose, mobileOpen }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const user = useAppSelector(selectCurrentUser);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
 
   const handleClick = (item: MenuItem) => {
@@ -110,6 +121,17 @@ export default function Sidebar({ onClose, mobileOpen }: SidebarProps) {
     if (!path) return false;
     // Exact match or starts with the path (for sub-routes)
     return location.pathname === path || location.pathname.startsWith(path + '/');
+  };
+
+  // Filtrar menú según el rol del usuario
+  const hasAccess = (item: MenuItem) => {
+    if (!item.roles) return true; // Si no tiene roles definidos, todos tienen acceso
+    if (!user) return false;
+    return item.roles.includes(user.rol);
+  };
+
+  const filterMenuByRole = (items: MenuItem[]): MenuItem[] => {
+    return items.filter(hasAccess);
   };
 
   const renderMenuItem = (item: MenuItem, depth = 0) => (
@@ -135,16 +157,23 @@ export default function Sidebar({ onClose, mobileOpen }: SidebarProps) {
     </div>
   );
 
+  const filteredMenuItems = filterMenuByRole(menuItems);
+  const filteredAdminItems = filterMenuByRole(adminMenuItems);
+
   const drawerContent = (
     <>
       <Toolbar />
       <List>
-        {menuItems.map((item) => renderMenuItem(item))}
+        {filteredMenuItems.map((item) => renderMenuItem(item))}
       </List>
-      <Divider />
-      <List>
-        {adminMenuItems.map((item) => renderMenuItem(item))}
-      </List>
+      {filteredAdminItems.length > 0 && (
+        <>
+          <Divider />
+          <List>
+            {filteredAdminItems.map((item) => renderMenuItem(item))}
+          </List>
+        </>
+      )}
     </>
   );
 
