@@ -9,17 +9,14 @@ import {
   MenuItem,
   Box,
   InputBase,
-  Avatar,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
   Notifications as NotificationsIcon,
   Search as SearchIcon,
-  AccountCircle,
-  Settings,
-  Logout,
 } from '@mui/icons-material';
 import { styled, alpha } from '@mui/material/styles';
+import UserMenu from '@/components/user/UserMenu';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -65,16 +62,7 @@ interface HeaderProps {
 }
 
 export default function Header({ onMenuClick }: HeaderProps) {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [notificationsAnchor, setNotificationsAnchor] = useState<null | HTMLElement>(null);
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
 
   const handleNotificationsOpen = (event: React.MouseEvent<HTMLElement>) => {
     setNotificationsAnchor(event.currentTarget);
@@ -82,11 +70,6 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
   const handleNotificationsClose = () => {
     setNotificationsAnchor(null);
-  };
-
-  const handleLogout = () => {
-    // TODO: Implementar logout
-    handleMenuClose();
   };
 
   return (
@@ -127,43 +110,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
             </Badge>
           </IconButton>
 
-          <IconButton
-            onClick={handleMenuOpen}
-            color="inherit"
-          >
-            <Avatar sx={{ width: 32, height: 32 }}>
-              <AccountCircle />
-            </Avatar>
-          </IconButton>
+          {/* Componente UserMenu integrado */}
+          <UserMenu />
         </Box>
-
-        {/* Menu de usuario */}
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-        >
-          <MenuItem onClick={handleMenuClose}>
-            <AccountCircle sx={{ mr: 1 }} />
-            Mi Perfil
-          </MenuItem>
-          <MenuItem onClick={handleMenuClose}>
-            <Settings sx={{ mr: 1 }} />
-            Configuración
-          </MenuItem>
-          <MenuItem onClick={handleLogout}>
-            <Logout sx={{ mr: 1 }} />
-            Cerrar Sesión
-          </MenuItem>
-        </Menu>
 
         {/* Menu de notificaciones */}
         <Menu
