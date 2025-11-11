@@ -11,7 +11,6 @@ import {
   Tabs,
   Typography,
   IconButton,
-  Divider,
 } from '@mui/material';
 import {
   ArrowBack as BackIcon,
@@ -53,7 +52,7 @@ export default function ProjectDetailPage() {
 
   const { data: project, isLoading, error } = useGetProjectByIdQuery(id!);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
   };
 
@@ -88,7 +87,7 @@ export default function ProjectDetailPage() {
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Inmobiliaria
               </Typography>
@@ -97,7 +96,7 @@ export default function ProjectDetailPage() {
               </Typography>
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Estado
               </Typography>
@@ -109,7 +108,7 @@ export default function ProjectDetailPage() {
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Dirección
               </Typography>
@@ -118,7 +117,7 @@ export default function ProjectDetailPage() {
               </Typography>
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Modelo de Negocio
               </Typography>
@@ -127,7 +126,7 @@ export default function ProjectDetailPage() {
               </Typography>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Fecha Inicio Ventas
               </Typography>
@@ -136,7 +135,7 @@ export default function ProjectDetailPage() {
               </Typography>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Fecha de Entrega
               </Typography>
@@ -145,7 +144,7 @@ export default function ProjectDetailPage() {
               </Typography>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Unidades
               </Typography>

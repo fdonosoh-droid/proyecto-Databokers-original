@@ -70,7 +70,7 @@ export default function PropertiesListPage() {
     },
   });
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
@@ -108,7 +108,7 @@ export default function PropertiesListPage() {
           <ToggleButtonGroup
             value={viewMode}
             exclusive
-            onChange={(e, newMode) => newMode && setViewMode(newMode)}
+            onChange={(_e, newMode) => newMode && setViewMode(newMode)}
             size="small"
           >
             <ToggleButton value="table">
@@ -131,7 +131,7 @@ export default function PropertiesListPage() {
       {/* Filtros */}
       <Card sx={{ p: 2, mb: 3 }}>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <TextField
               fullWidth
               label="Buscar"
@@ -141,7 +141,7 @@ export default function PropertiesListPage() {
               onChange={(e) => handleFilterChange('search', e.target.value)}
             />
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <FormControl fullWidth size="small">
               <InputLabel>Tipo</InputLabel>
               <Select
@@ -158,7 +158,7 @@ export default function PropertiesListPage() {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <FormControl fullWidth size="small">
               <InputLabel>Estado</InputLabel>
               <Select
@@ -175,7 +175,7 @@ export default function PropertiesListPage() {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <FormControl fullWidth size="small">
               <InputLabel>Modelo</InputLabel>
               <Select
@@ -198,8 +198,7 @@ export default function PropertiesListPage() {
       {properties.length === 0 ? (
         <EmptyState
           message="No hay propiedades registradas"
-          actionText="Crear Propiedad"
-          onAction={() => navigate('/propiedades/nuevo')}
+          action={{ label: "Crear Propiedad", onClick: () => navigate("/properties/new") }}
         />
       ) : viewMode === 'table' ? (
         /* Vista de Tabla */
@@ -303,7 +302,7 @@ export default function PropertiesListPage() {
         <>
           <Grid container spacing={3}>
             {properties.map((property) => (
-              <Grid item xs={12} sm={6} md={4} key={property.id}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={property.id}>
                 <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <CardMedia
                     component="div"

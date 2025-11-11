@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 
 interface LoadingSpinnerProps {
@@ -5,7 +6,7 @@ interface LoadingSpinnerProps {
   size?: number;
 }
 
-export default function LoadingSpinner({ message = 'Cargando...', size = 40 }: LoadingSpinnerProps) {
+const LoadingSpinner = memo(function LoadingSpinner({ message = 'Cargando...', size = 40 }: LoadingSpinnerProps) {
   return (
     <Box
       sx={{
@@ -25,4 +26,6 @@ export default function LoadingSpinner({ message = 'Cargando...', size = 40 }: L
       )}
     </Box>
   );
-}
+});
+
+export default LoadingSpinner;

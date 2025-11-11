@@ -7,7 +7,6 @@ import {
   CardContent,
   Grid,
   TextField,
-  Typography,
   MenuItem,
   IconButton,
 } from '@mui/material';
@@ -187,7 +186,7 @@ export default function PropertyFormPage() {
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               {/* Tipo de Propiedad */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   required
@@ -205,7 +204,7 @@ export default function PropertyFormPage() {
               </Grid>
 
               {/* Estado */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   required
@@ -223,7 +222,7 @@ export default function PropertyFormPage() {
               </Grid>
 
               {/* Dirección */}
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
                   required
@@ -236,7 +235,7 @@ export default function PropertyFormPage() {
               </Grid>
 
               {/* Comuna */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   required
@@ -249,7 +248,7 @@ export default function PropertyFormPage() {
               </Grid>
 
               {/* Región */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   required
@@ -262,7 +261,7 @@ export default function PropertyFormPage() {
               </Grid>
 
               {/* Precio */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   required
@@ -277,7 +276,7 @@ export default function PropertyFormPage() {
               </Grid>
 
               {/* Modelo de Negocio */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   required
@@ -295,7 +294,7 @@ export default function PropertyFormPage() {
               </Grid>
 
               {/* Superficie Total */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   required
@@ -310,7 +309,7 @@ export default function PropertyFormPage() {
               </Grid>
 
               {/* Superficie Útil */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   type="number"
@@ -322,7 +321,7 @@ export default function PropertyFormPage() {
               </Grid>
 
               {/* Dormitorios */}
-              <Grid item xs={6} md={3}>
+              <Grid size={{ xs: 6, md: 3 }}>
                 <TextField
                   fullWidth
                   required
@@ -337,7 +336,7 @@ export default function PropertyFormPage() {
               </Grid>
 
               {/* Baños */}
-              <Grid item xs={6} md={3}>
+              <Grid size={{ xs: 6, md: 3 }}>
                 <TextField
                   fullWidth
                   required
@@ -352,7 +351,7 @@ export default function PropertyFormPage() {
               </Grid>
 
               {/* Estacionamientos */}
-              <Grid item xs={6} md={3}>
+              <Grid size={{ xs: 6, md: 3 }}>
                 <TextField
                   fullWidth
                   required
@@ -367,7 +366,7 @@ export default function PropertyFormPage() {
               </Grid>
 
               {/* Bodegas */}
-              <Grid item xs={6} md={3}>
+              <Grid size={{ xs: 6, md: 3 }}>
                 <TextField
                   fullWidth
                   type="number"
@@ -379,7 +378,7 @@ export default function PropertyFormPage() {
               </Grid>
 
               {/* Descripción */}
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
                   multiline
@@ -392,7 +391,7 @@ export default function PropertyFormPage() {
               </Grid>
 
               {/* Botones */}
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Box display="flex" gap={2} justifyContent="flex-end">
                   <Button
                     variant="outlined"

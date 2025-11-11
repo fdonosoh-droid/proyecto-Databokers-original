@@ -70,7 +70,7 @@ export default function PropertyDetailPage() {
 
       <Grid container spacing={3}>
         {/* Galería de Imágenes */}
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -110,7 +110,7 @@ export default function PropertyDetailPage() {
         </Grid>
 
         {/* Información Principal */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
               <Typography variant="h4" gutterBottom>
@@ -128,7 +128,7 @@ export default function PropertyDetailPage() {
                 Características
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Box display="flex" alignItems="center" gap={1}>
                     <BedIcon color="action" />
                     <Box>
@@ -139,7 +139,7 @@ export default function PropertyDetailPage() {
                     </Box>
                   </Box>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Box display="flex" alignItems="center" gap={1}>
                     <BathIcon color="action" />
                     <Box>
@@ -150,7 +150,7 @@ export default function PropertyDetailPage() {
                     </Box>
                   </Box>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Box display="flex" alignItems="center" gap={1}>
                     <ParkingIcon color="action" />
                     <Box>
@@ -162,7 +162,7 @@ export default function PropertyDetailPage() {
                   </Box>
                 </Grid>
                 {property.bodegas !== undefined && (
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <Box display="flex" alignItems="center" gap={1}>
                       <StorageIcon color="action" />
                       <Box>
@@ -219,7 +219,7 @@ export default function PropertyDetailPage() {
 
         {/* Descripción */}
         {property.descripcion && (
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -234,7 +234,7 @@ export default function PropertyDetailPage() {
         )}
 
         {/* Historial */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>

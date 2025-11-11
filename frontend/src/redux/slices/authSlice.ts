@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { User, AuthState } from '@/types';
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { User, AuthState } from '@/types';
 
 // Función para cargar el estado inicial desde localStorage
 const loadAuthState = (): AuthState => {
