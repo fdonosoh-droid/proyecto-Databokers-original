@@ -25,7 +25,7 @@ import {
   useUpdateTypologyMutation,
   useDeleteTypologyMutation,
 } from '../../redux/api/projectsApi';
-import { Typology } from '../../types';
+import type { Typology } from '../../types';
 import LoadingSpinner from '../common/LoadingSpinner';
 import EmptyState from '../common/EmptyState';
 
@@ -155,13 +155,15 @@ export default function ProjectTypologies({ projectId }: ProjectTypologiesProps)
       {!typologies || typologies.length === 0 ? (
         <EmptyState
           message="No hay tipologías definidas"
-          actionText="Crear Tipología"
-          onAction={() => handleOpenDialog()}
+          action={{
+            label: "Crear Tipología",
+            onClick: () => handleOpenDialog()
+          }}
         />
       ) : (
         <Grid container spacing={2}>
           {typologies.map((typology) => (
-            <Grid item xs={12} md={6} key={typology.id}>
+            <Grid size={{ xs: 12, md: 6 }} key={typology.id}>
               <Card>
                 <CardContent>
                   <Box display="flex" justifyContent="space-between" alignItems="start">
@@ -189,7 +191,7 @@ export default function ProjectTypologies({ projectId }: ProjectTypologiesProps)
                   <Divider sx={{ my: 1 }} />
 
                   <Grid container spacing={1}>
-                    <Grid item xs={6}>
+                    <Grid size={{ xs: 6 }}>
                       <Typography variant="caption" color="text.secondary">
                         Superficie Total
                       </Typography>
@@ -197,7 +199,7 @@ export default function ProjectTypologies({ projectId }: ProjectTypologiesProps)
                         {typology.superficieTotal} m²
                       </Typography>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid size={{ xs: 6 }}>
                       <Typography variant="caption" color="text.secondary">
                         Superficie Útil
                       </Typography>
@@ -205,19 +207,19 @@ export default function ProjectTypologies({ projectId }: ProjectTypologiesProps)
                         {typology.superficieUtil} m²
                       </Typography>
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid size={{ xs: 4 }}>
                       <Typography variant="caption" color="text.secondary">
                         Dormitorios
                       </Typography>
                       <Typography variant="body2">{typology.dormitorios}</Typography>
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid size={{ xs: 4 }}>
                       <Typography variant="caption" color="text.secondary">
                         Baños
                       </Typography>
                       <Typography variant="body2">{typology.banos}</Typography>
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid size={{ xs: 4 }}>
                       <Typography variant="caption" color="text.secondary">
                         Estac.
                       </Typography>
@@ -248,7 +250,7 @@ export default function ProjectTypologies({ projectId }: ProjectTypologiesProps)
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 label="Nombre"
@@ -256,7 +258,7 @@ export default function ProjectTypologies({ projectId }: ProjectTypologiesProps)
                 onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 label="Tipo de Propiedad"
@@ -266,7 +268,7 @@ export default function ProjectTypologies({ projectId }: ProjectTypologiesProps)
                 }
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 label="Superficie Total (m²)"
@@ -277,7 +279,7 @@ export default function ProjectTypologies({ projectId }: ProjectTypologiesProps)
                 }
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 label="Superficie Útil (m²)"
@@ -288,7 +290,7 @@ export default function ProjectTypologies({ projectId }: ProjectTypologiesProps)
                 }
               />
             </Grid>
-            <Grid item xs={6} md={3}>
+            <Grid size={{ xs: 6, md: 3 }}>
               <TextField
                 fullWidth
                 label="Dormitorios"
@@ -297,7 +299,7 @@ export default function ProjectTypologies({ projectId }: ProjectTypologiesProps)
                 onChange={(e) => setFormData({ ...formData, dormitorios: e.target.value })}
               />
             </Grid>
-            <Grid item xs={6} md={3}>
+            <Grid size={{ xs: 6, md: 3 }}>
               <TextField
                 fullWidth
                 label="Baños"
@@ -306,7 +308,7 @@ export default function ProjectTypologies({ projectId }: ProjectTypologiesProps)
                 onChange={(e) => setFormData({ ...formData, banos: e.target.value })}
               />
             </Grid>
-            <Grid item xs={6} md={3}>
+            <Grid size={{ xs: 6, md: 3 }}>
               <TextField
                 fullWidth
                 label="Estacionamientos"
@@ -317,7 +319,7 @@ export default function ProjectTypologies({ projectId }: ProjectTypologiesProps)
                 }
               />
             </Grid>
-            <Grid item xs={6} md={3}>
+            <Grid size={{ xs: 6, md: 3 }}>
               <TextField
                 fullWidth
                 label="Bodegas"
@@ -326,7 +328,7 @@ export default function ProjectTypologies({ projectId }: ProjectTypologiesProps)
                 onChange={(e) => setFormData({ ...formData, bodegas: e.target.value })}
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 label="Precio Desde"
@@ -337,7 +339,7 @@ export default function ProjectTypologies({ projectId }: ProjectTypologiesProps)
                 }
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 label="Precio Hasta"

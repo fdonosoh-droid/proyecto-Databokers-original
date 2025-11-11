@@ -36,7 +36,7 @@ import {
   useDeleteUnitMutation,
   useGetTypologiesQuery,
 } from '../../redux/api/projectsApi';
-import { Unit } from '../../types';
+import type { Unit } from '../../types';
 import LoadingSpinner from '../common/LoadingSpinner';
 import EmptyState from '../common/EmptyState';
 
@@ -172,8 +172,10 @@ export default function ProjectUnits({ projectId }: ProjectUnitsProps) {
       {units.length === 0 ? (
         <EmptyState
           message="No hay unidades registradas"
-          actionText="Crear Unidad"
-          onAction={() => handleOpenDialog()}
+          action={{
+            label: "Crear Unidad",
+            onClick: () => handleOpenDialog()
+          }}
         />
       ) : (
         <TableContainer component={Paper}>
@@ -230,7 +232,7 @@ export default function ProjectUnits({ projectId }: ProjectUnitsProps) {
             component="div"
             count={totalUnits}
             page={page}
-            onPageChange={(e, newPage) => setPage(newPage)}
+            onPageChange={(_e, newPage) => setPage(newPage)}
             rowsPerPage={rowsPerPage}
             onRowsPerPageChange={(e) => {
               setRowsPerPage(parseInt(e.target.value, 10));
@@ -246,7 +248,7 @@ export default function ProjectUnits({ projectId }: ProjectUnitsProps) {
         <DialogTitle>{editingUnit ? 'Editar Unidad' : 'Nueva Unidad'}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <TextField
                 fullWidth
                 label="Número"
@@ -254,7 +256,7 @@ export default function ProjectUnits({ projectId }: ProjectUnitsProps) {
                 onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <TextField
                 fullWidth
                 label="Piso"
@@ -262,7 +264,7 @@ export default function ProjectUnits({ projectId }: ProjectUnitsProps) {
                 onChange={(e) => setFormData({ ...formData, piso: e.target.value })}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <FormControl fullWidth>
                 <InputLabel>Tipología</InputLabel>
                 <Select
@@ -280,7 +282,7 @@ export default function ProjectUnits({ projectId }: ProjectUnitsProps) {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Precio"
@@ -289,7 +291,7 @@ export default function ProjectUnits({ projectId }: ProjectUnitsProps) {
                 onChange={(e) => setFormData({ ...formData, precio: e.target.value })}
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <TextField
                 fullWidth
                 label="Superficie Total (m²)"
@@ -300,7 +302,7 @@ export default function ProjectUnits({ projectId }: ProjectUnitsProps) {
                 }
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <TextField
                 fullWidth
                 label="Superficie Útil (m²)"
@@ -311,7 +313,7 @@ export default function ProjectUnits({ projectId }: ProjectUnitsProps) {
                 }
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <FormControl fullWidth>
                 <InputLabel>Estado</InputLabel>
                 <Select

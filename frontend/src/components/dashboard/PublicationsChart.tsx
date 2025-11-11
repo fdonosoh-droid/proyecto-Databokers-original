@@ -30,9 +30,9 @@ export default function PublicationsChart({ data }: PublicationsChartProps) {
                 paddingAngle={5}
                 dataKey="cantidad"
                 nameKey="tipo"
-                label={({ cantidad }) => cantidad}
+                label={(props: any) => props.cantidad}
               >
-                {data.map((entry, index) => (
+                {data.map((_entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>

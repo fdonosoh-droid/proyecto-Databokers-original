@@ -26,7 +26,7 @@ import {
 } from '@mui/icons-material';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Alert } from '../../types';
+import type { Alert } from '../../types';
 
 interface AlertsPanelProps {
   alerts: Alert[];

@@ -1,5 +1,5 @@
 import { baseApi } from './baseApi';
-import { Project, Typology, Unit } from '../../types';
+import type { Project, Typology, Unit } from '../../types';
 
 export interface ProjectFilters {
   estado?: string;
@@ -33,7 +33,7 @@ export const projectsApi = baseApi.injectEndpoints({
     }),
     getProjectById: builder.query<Project, string>({
       query: (id) => `/proyectos/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Projects', id }],
+      providesTags: (_result, _error, id) => [{ type: 'Projects', id }],
     }),
     createProject: builder.mutation<Project, Partial<Project>>({
       query: (body) => ({
@@ -49,7 +49,7 @@ export const projectsApi = baseApi.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Projects', id }, 'Projects'],
+      invalidatesTags: (_result, _error, { id }) => [{ type: 'Projects', id }, 'Projects'],
     }),
     deleteProject: builder.mutation<void, string>({
       query: (id) => ({
@@ -60,13 +60,13 @@ export const projectsApi = baseApi.injectEndpoints({
     }),
     getProjectStatistics: builder.query<any, string>({
       query: (id) => `/proyectos/${id}/statistics`,
-      providesTags: (result, error, id) => [{ type: 'Projects', id }],
+      providesTags: (_result, _error, id) => [{ type: 'Projects', id }],
     }),
 
     // Typologies
     getTypologies: builder.query<Typology[], string>({
       query: (projectId) => `/proyectos/${projectId}/tipologias`,
-      providesTags: (result, error, projectId) => [{ type: 'Projects', id: projectId }],
+      providesTags: (_result, _error, projectId) => [{ type: 'Projects', id: projectId }],
     }),
     createTypology: builder.mutation<Typology, { projectId: string; data: Partial<Typology> }>({
       query: ({ projectId, data }) => ({
@@ -74,7 +74,7 @@ export const projectsApi = baseApi.injectEndpoints({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: (result, error, { projectId }) => [{ type: 'Projects', id: projectId }],
+      invalidatesTags: (_result, _error, { projectId }) => [{ type: 'Projects', id: projectId }],
     }),
     updateTypology: builder.mutation<Typology, { projectId: string; id: string; data: Partial<Typology> }>({
       query: ({ projectId, id, data }) => ({
@@ -82,14 +82,14 @@ export const projectsApi = baseApi.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { projectId }) => [{ type: 'Projects', id: projectId }],
+      invalidatesTags: (_result, _error, { projectId }) => [{ type: 'Projects', id: projectId }],
     }),
     deleteTypology: builder.mutation<void, { projectId: string; id: string }>({
       query: ({ projectId, id }) => ({
         url: `/proyectos/${projectId}/tipologias/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, { projectId }) => [{ type: 'Projects', id: projectId }],
+      invalidatesTags: (_result, _error, { projectId }) => [{ type: 'Projects', id: projectId }],
     }),
 
     // Units
@@ -101,7 +101,7 @@ export const projectsApi = baseApi.injectEndpoints({
         });
         return `/proyectos/${projectId}/unidades?${params.toString()}`;
       },
-      providesTags: (result, error, { projectId }) => [{ type: 'Projects', id: projectId }],
+      providesTags: (_result, _error, { projectId }) => [{ type: 'Projects', id: projectId }],
     }),
     createUnit: builder.mutation<Unit, { projectId: string; data: Partial<Unit> }>({
       query: ({ projectId, data }) => ({
@@ -109,7 +109,7 @@ export const projectsApi = baseApi.injectEndpoints({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: (result, error, { projectId }) => [{ type: 'Projects', id: projectId }],
+      invalidatesTags: (_result, _error, { projectId }) => [{ type: 'Projects', id: projectId }],
     }),
     updateUnit: builder.mutation<Unit, { projectId: string; id: string; data: Partial<Unit> }>({
       query: ({ projectId, id, data }) => ({
@@ -117,14 +117,14 @@ export const projectsApi = baseApi.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { projectId }) => [{ type: 'Projects', id: projectId }],
+      invalidatesTags: (_result, _error, { projectId }) => [{ type: 'Projects', id: projectId }],
     }),
     deleteUnit: builder.mutation<void, { projectId: string; id: string }>({
       query: ({ projectId, id }) => ({
         url: `/proyectos/${projectId}/unidades/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, { projectId }) => [{ type: 'Projects', id: projectId }],
+      invalidatesTags: (_result, _error, { projectId }) => [{ type: 'Projects', id: projectId }],
     }),
   }),
 });

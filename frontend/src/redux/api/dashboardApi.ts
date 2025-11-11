@@ -1,5 +1,5 @@
 import { baseApi } from './baseApi';
-import { KPI, Alert } from '../../types';
+import type { Alert } from '../../types';
 
 export interface DashboardKPIs {
   valorizacionTotal: number;
@@ -68,7 +68,7 @@ export const dashboardApi = baseApi.injectEndpoints({
     getDashboardKPIs: builder.query<DashboardKPIs, DashboardFilters | void>({
       query: (filters = {}) => ({
         url: '/dashboard/kpis',
-        params: filters,
+        params: filters || {},
       }),
       providesTags: ['Dashboard'],
       // Polling cada 5 minutos para datos en tiempo real
@@ -79,7 +79,7 @@ export const dashboardApi = baseApi.injectEndpoints({
     getDashboardStatistics: builder.query<DashboardStatistics, DashboardFilters | void>({
       query: (filters = {}) => ({
         url: '/dashboard/statistics',
-        params: filters,
+        params: filters || {},
       }),
       providesTags: ['Dashboard'],
       keepUnusedDataFor: 300,

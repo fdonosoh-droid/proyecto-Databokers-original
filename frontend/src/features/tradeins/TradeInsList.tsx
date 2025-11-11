@@ -116,7 +116,7 @@ export default function TradeInsList({
       {/* Filtros */}
       <Paper sx={{ p: 2, mb: 2 }}>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <TextField
               select
               fullWidth
@@ -134,7 +134,7 @@ export default function TradeInsList({
               <MenuItem value="CANCELADO">Cancelado</MenuItem>
             </TextField>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <TextField
               fullWidth
               label="Desde"
@@ -145,7 +145,7 @@ export default function TradeInsList({
               size="small"
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <TextField
               fullWidth
               label="Hasta"
@@ -156,7 +156,7 @@ export default function TradeInsList({
               size="small"
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Button
               variant="contained"
               startIcon={<AddIcon />}

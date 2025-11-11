@@ -73,7 +73,7 @@ export default function PublicationStats({ filters }: PublicationStatsProps) {
     <Box>
       {/* KPIs */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
               <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -85,7 +85,7 @@ export default function PublicationStats({ filters }: PublicationStatsProps) {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
               <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -97,7 +97,7 @@ export default function PublicationStats({ filters }: PublicationStatsProps) {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
               <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -109,7 +109,7 @@ export default function PublicationStats({ filters }: PublicationStatsProps) {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
               <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -126,7 +126,7 @@ export default function PublicationStats({ filters }: PublicationStatsProps) {
       {/* Gráficos */}
       <Grid container spacing={3}>
         {/* Publicaciones por Estado */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Publicaciones por Estado
@@ -140,7 +140,7 @@ export default function PublicationStats({ filters }: PublicationStatsProps) {
                   cx="50%"
                   cy="50%"
                   outerRadius={100}
-                  label={(entry) => `${entry.estado}: ${entry.cantidad}`}
+                  label={(entry: any) => `${entry.estado}: ${entry.cantidad}`}
                 >
                   {estadosData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -154,7 +154,7 @@ export default function PublicationStats({ filters }: PublicationStatsProps) {
         </Grid>
 
         {/* Efectividad por Corredor */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Publicaciones Activas por Corredor
@@ -177,7 +177,7 @@ export default function PublicationStats({ filters }: PublicationStatsProps) {
         </Grid>
 
         {/* Tasa de Éxito por Corredor */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Tasa de Éxito por Corredor
@@ -211,12 +211,12 @@ export default function PublicationStats({ filters }: PublicationStatsProps) {
         </Typography>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           {stats.efectividadPorCorreedor.map((corredor) => (
-            <Grid item xs={12} md={6} key={corredor.corredorId}>
+            <Grid size={{ xs: 12, md: 6 }} key={corredor.corredorId}>
               <Card variant="outlined">
                 <CardContent>
                   <Typography variant="h6">{corredor.nombre}</Typography>
                   <Grid container spacing={2} sx={{ mt: 1 }}>
-                    <Grid item xs={6}>
+                    <Grid size={{ xs: 6 }}>
                       <Typography variant="body2" color="text.secondary">
                         Publicaciones Activas
                       </Typography>
@@ -224,7 +224,7 @@ export default function PublicationStats({ filters }: PublicationStatsProps) {
                         {corredor.publicacionesActivas}
                       </Typography>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid size={{ xs: 6 }}>
                       <Typography variant="body2" color="text.secondary">
                         Tasa de Éxito
                       </Typography>

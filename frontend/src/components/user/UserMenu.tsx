@@ -10,7 +10,6 @@ import {
   ListItemIcon,
 } from '@mui/material';
 import {
-  AccountCircle,
   Settings,
   Logout,
   Person,

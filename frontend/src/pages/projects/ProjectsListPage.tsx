@@ -58,7 +58,7 @@ export default function ProjectsListPage() {
     },
   });
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
@@ -118,7 +118,7 @@ export default function ProjectsListPage() {
       {/* Filtros */}
       <Card sx={{ p: 2, mb: 3 }}>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <TextField
               fullWidth
               label="Buscar por nombre"
@@ -128,7 +128,7 @@ export default function ProjectsListPage() {
               onChange={(e) => handleFilterChange('search', e.target.value)}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <FormControl fullWidth size="small">
               <InputLabel>Estado</InputLabel>
               <Select
@@ -145,7 +145,7 @@ export default function ProjectsListPage() {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <FormControl fullWidth size="small">
               <InputLabel>Modelo de Negocio</InputLabel>
               <Select
@@ -169,8 +169,7 @@ export default function ProjectsListPage() {
       {projects.length === 0 ? (
         <EmptyState
           message="No hay proyectos registrados"
-          actionText="Crear Proyecto"
-          onAction={() => navigate('/proyectos/nuevo')}
+          action={{ label: "Crear Proyecto", onClick: () => navigate("/projects/new") }}
         />
       ) : (
         <TableContainer component={Paper}>

@@ -1,5 +1,5 @@
 import { baseApi } from './baseApi';
-import { Property } from '../../types';
+import type { Property } from '../../types';
 
 export interface PropertyFilters {
   tipo?: string;
@@ -40,7 +40,7 @@ export const propertiesApi = baseApi.injectEndpoints({
     }),
     getPropertyById: builder.query<Property, string>({
       query: (id) => `/propiedades/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Properties', id }],
+      providesTags: (_result, _error, id) => [{ type: 'Properties', id }],
     }),
     createProperty: builder.mutation<Property, Partial<Property>>({
       query: (body) => ({
@@ -56,7 +56,7 @@ export const propertiesApi = baseApi.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Properties', id }, 'Properties'],
+      invalidatesTags: (_result, _error, { id }) => [{ type: 'Properties', id }, 'Properties'],
     }),
     deleteProperty: builder.mutation<void, string>({
       query: (id) => ({
@@ -67,7 +67,7 @@ export const propertiesApi = baseApi.injectEndpoints({
     }),
     getPropertyHistory: builder.query<any[], string>({
       query: (id) => `/propiedades/${id}/historial`,
-      providesTags: (result, error, id) => [{ type: 'Properties', id }],
+      providesTags: (_result, _error, id) => [{ type: 'Properties', id }],
     }),
   }),
 });

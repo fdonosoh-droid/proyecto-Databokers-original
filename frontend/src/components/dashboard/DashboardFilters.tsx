@@ -8,11 +8,11 @@ import {
   Select,
   MenuItem,
   Button,
-  Grid,
   TextField,
+  Grid,
 } from '@mui/material';
 import { FilterList, Download } from '@mui/icons-material';
-import { DashboardFilters as Filters } from '../../redux/api/dashboardApi';
+import type { DashboardFilters as Filters } from '../../redux/api/dashboardApi';
 
 interface DashboardFiltersProps {
   onFiltersChange: (filters: Filters) => void;
@@ -57,7 +57,7 @@ export default function DashboardFilters({ onFiltersChange, onExport }: Dashboar
         </Box>
 
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <FormControl fullWidth size="small">
               <InputLabel>Período</InputLabel>
               <Select
@@ -76,7 +76,7 @@ export default function DashboardFilters({ onFiltersChange, onExport }: Dashboar
 
           {periodo === 'personalizado' && (
             <>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <TextField
                   fullWidth
                   size="small"
@@ -87,7 +87,7 @@ export default function DashboardFilters({ onFiltersChange, onExport }: Dashboar
                   InputLabelProps={{ shrink: true }}
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <TextField
                   fullWidth
                   size="small"
@@ -101,7 +101,7 @@ export default function DashboardFilters({ onFiltersChange, onExport }: Dashboar
             </>
           )}
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <FormControl fullWidth size="small">
               <InputLabel>Modelo de Negocio</InputLabel>
               <Select
@@ -118,7 +118,7 @@ export default function DashboardFilters({ onFiltersChange, onExport }: Dashboar
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <FormControl fullWidth size="small">
               <InputLabel>Región</InputLabel>
               <Select
@@ -135,7 +135,7 @@ export default function DashboardFilters({ onFiltersChange, onExport }: Dashboar
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Button
               fullWidth
               variant="contained"
@@ -146,7 +146,7 @@ export default function DashboardFilters({ onFiltersChange, onExport }: Dashboar
             </Button>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Button
               fullWidth
               variant="outlined"
@@ -159,7 +159,7 @@ export default function DashboardFilters({ onFiltersChange, onExport }: Dashboar
 
           {onExport && (
             <>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -171,7 +171,7 @@ export default function DashboardFilters({ onFiltersChange, onExport }: Dashboar
                 </Button>
               </Grid>
 
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <Button
                   fullWidth
                   variant="outlined"
