@@ -1,0 +1,133 @@
+import { baseApi } from './baseApi';
+import { KPI, Alert } from '../../types';
+
+export interface DashboardKPIs {
+  valorizacionTotal: number;
+  comisionBrutaEstimada: number;
+  comisionNeta: number;
+  tasaConversion: number;
+  tiempoPromedioVenta: number;
+  inventarioDisponible: number;
+  rotacionInventario: number;
+  canjesActivos: number;
+  tasaExitoCanjes: number;
+  // Comparaciones con período anterior
+  cambios: {
+    valorizacionTotal: number;
+    comisionBrutaEstimada: number;
+    comisionNeta: number;
+    tasaConversion: number;
+    tiempoPromedioVenta: number;
+    inventarioDisponible: number;
+    rotacionInventario: number;
+    canjesActivos: number;
+    tasaExitoCanjes: number;
+  };
+}
+
+export interface DashboardStatistics {
+  ventasPorMes: {
+    mes: string;
+    ventas: number;
+    ingresos: number;
+  }[];
+  distribucionModeloNegocio: {
+    modelo: string;
+    cantidad: number;
+    porcentaje: number;
+  }[];
+  canjesPorEstado: {
+    estado: string;
+    cantidad: number;
+  }[];
+  publicacionesActivas: {
+    tipo: string;
+    cantidad: number;
+  }[];
+  actividadReciente: {
+    id: string;
+    tipo: 'venta' | 'canje' | 'publicacion' | 'proyecto';
+    descripcion: string;
+    fecha: string;
+    usuario: string;
+  }[];
+}
+
+export interface DashboardFilters {
+  periodo?: 'hoy' | 'semana' | 'mes' | 'anio' | 'personalizado';
+  fechaInicio?: string;
+  fechaFin?: string;
+  modeloNegocio?: string;
+  regionId?: string;
+  comunaId?: string;
+}
+
+export const dashboardApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+    // Obtener KPIs del dashboard
+    getDashboardKPIs: builder.query<DashboardKPIs, DashboardFilters | void>({
+      query: (filters = {}) => ({
+        url: '/dashboard/kpis',
+        params: filters,
+      }),
+      providesTags: ['Dashboard'],
+      // Polling cada 5 minutos para datos en tiempo real
+      keepUnusedDataFor: 300,
+    }),
+
+    // Obtener estadísticas del dashboard
+    getDashboardStatistics: builder.query<DashboardStatistics, DashboardFilters | void>({
+      query: (filters = {}) => ({
+        url: '/dashboard/statistics',
+        params: filters,
+      }),
+      providesTags: ['Dashboard'],
+      keepUnusedDataFor: 300,
+    }),
+
+    // Obtener alertas del dashboard
+    getDashboardAlerts: builder.query<Alert[], void>({
+      query: () => '/dashboard/alerts',
+      providesTags: ['Dashboard'],
+      // Polling cada 2 minutos para alertas
+      keepUnusedDataFor: 120,
+    }),
+
+    // Obtener actividad reciente
+    getRecentActivity: builder.query<DashboardStatistics['actividadReciente'], { limit?: number }>({
+      query: ({ limit = 10 }) => ({
+        url: '/dashboard/recent-activity',
+        params: { limit },
+      }),
+      providesTags: ['Dashboard'],
+    }),
+
+    // Marcar alerta como leída
+    markAlertAsRead: builder.mutation<void, string>({
+      query: (alertId) => ({
+        url: `/dashboard/alerts/${alertId}/read`,
+        method: 'PATCH',
+      }),
+      invalidatesTags: ['Dashboard'],
+    }),
+
+    // Exportar datos del dashboard
+    exportDashboard: builder.mutation<Blob, { formato: 'pdf' | 'excel'; filters?: DashboardFilters }>({
+      query: ({ formato, filters }) => ({
+        url: `/dashboard/export/${formato}`,
+        method: 'POST',
+        body: filters,
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+  }),
+});
+
+export const {
+  useGetDashboardKPIsQuery,
+  useGetDashboardStatisticsQuery,
+  useGetDashboardAlertsQuery,
+  useGetRecentActivityQuery,
+  useMarkAlertAsReadMutation,
+  useExportDashboardMutation,
+} = dashboardApi;
