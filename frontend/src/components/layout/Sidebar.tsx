@@ -118,15 +118,27 @@ export default function Sidebar({ onClose, mobileOpen }: SidebarProps) {
           onClick={() => handleClick(item)}
           selected={isActive(item.path)}
           sx={{ pl: depth * 2 + 2 }}
+          aria-label={item.text}
+          aria-current={isActive(item.path) ? 'page' : undefined}
+          aria-expanded={item.children ? openSubmenu === item.text : undefined}
         >
-          <ListItemIcon>{item.icon}</ListItemIcon>
+          <ListItemIcon aria-hidden="true">{item.icon}</ListItemIcon>
           <ListItemText primary={item.text} />
-          {item.children && (openSubmenu === item.text ? <ExpandLess /> : <ExpandMore />)}
+          {item.children && (
+            <span aria-hidden="true">
+              {openSubmenu === item.text ? <ExpandLess /> : <ExpandMore />}
+            </span>
+          )}
         </ListItemButton>
       </ListItem>
       {item.children && (
         <Collapse in={openSubmenu === item.text} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
+          <List
+            component="div"
+            disablePadding
+            role="group"
+            aria-label={`${item.text} submenú`}
+          >
             {item.children.map((child) => renderMenuItem(child, depth + 1))}
           </List>
         </Collapse>
@@ -137,13 +149,17 @@ export default function Sidebar({ onClose, mobileOpen }: SidebarProps) {
   const drawerContent = (
     <>
       <Toolbar />
-      <List>
-        {menuItems.map((item) => renderMenuItem(item))}
-      </List>
-      <Divider />
-      <List>
-        {adminMenuItems.map((item) => renderMenuItem(item))}
-      </List>
+      <nav aria-label="menú principal de navegación">
+        <List>
+          {menuItems.map((item) => renderMenuItem(item))}
+        </List>
+      </nav>
+      <Divider role="separator" />
+      <nav aria-label="menú de administración">
+        <List>
+          {adminMenuItems.map((item) => renderMenuItem(item))}
+        </List>
+      </nav>
     </>
   );
 
@@ -161,6 +177,7 @@ export default function Sidebar({ onClose, mobileOpen }: SidebarProps) {
             boxSizing: 'border-box',
           },
         }}
+        aria-label="navegación principal"
       >
         {drawerContent}
       </Drawer>
@@ -180,6 +197,7 @@ export default function Sidebar({ onClose, mobileOpen }: SidebarProps) {
             boxSizing: 'border-box',
           },
         }}
+        aria-label="navegación principal"
       >
         {drawerContent}
       </Drawer>

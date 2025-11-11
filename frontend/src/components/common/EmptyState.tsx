@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { Inbox } from '@mui/icons-material';
 
@@ -11,7 +12,7 @@ interface EmptyStateProps {
   };
 }
 
-export default function EmptyState({
+const EmptyState = memo(function EmptyState({
   title = 'No hay datos',
   message = 'No se encontraron elementos para mostrar',
   icon = <Inbox sx={{ fontSize: 80, color: 'text.disabled' }} />,
@@ -43,4 +44,6 @@ export default function EmptyState({
       )}
     </Box>
   );
-}
+});
+
+export default EmptyState;

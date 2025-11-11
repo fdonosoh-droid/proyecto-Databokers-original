@@ -97,6 +97,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
           edge="start"
           onClick={onMenuClick}
           sx={{ mr: 2 }}
+          aria-label="abrir menú de navegación"
         >
           <MenuIcon />
         </IconButton>
@@ -105,13 +106,16 @@ export default function Header({ onMenuClick }: HeaderProps) {
           Databrokers
         </Typography>
 
-        <Search>
-          <SearchIconWrapper>
+        <Search role="search">
+          <SearchIconWrapper aria-hidden="true">
             <SearchIcon />
           </SearchIconWrapper>
           <StyledInputBase
             placeholder="Buscar..."
-            inputProps={{ 'aria-label': 'search' }}
+            inputProps={{
+              'aria-label': 'buscar en la aplicación',
+              'role': 'searchbox'
+            }}
           />
         </Search>
 
@@ -121,6 +125,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <IconButton
             color="inherit"
             onClick={handleNotificationsOpen}
+            aria-label="notificaciones (4 nuevas)"
+            aria-haspopup="true"
+            aria-expanded={Boolean(notificationsAnchor)}
           >
             <Badge badgeContent={4} color="error">
               <NotificationsIcon />
@@ -130,6 +137,10 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <IconButton
             onClick={handleMenuOpen}
             color="inherit"
+            aria-label="menú de usuario"
+            aria-haspopup="true"
+            aria-expanded={Boolean(anchorEl)}
+            aria-controls={Boolean(anchorEl) ? 'user-menu' : undefined}
           >
             <Avatar sx={{ width: 32, height: 32 }}>
               <AccountCircle />
@@ -139,6 +150,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
         {/* Menu de usuario */}
         <Menu
+          id="user-menu"
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={handleMenuClose}
@@ -150,6 +162,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             vertical: 'top',
             horizontal: 'right',
           }}
+          aria-labelledby="user-menu-button"
         >
           <MenuItem onClick={handleMenuClose}>
             <AccountCircle sx={{ mr: 1 }} />
@@ -167,6 +180,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
         {/* Menu de notificaciones */}
         <Menu
+          id="notifications-menu"
           anchorEl={notificationsAnchor}
           open={Boolean(notificationsAnchor)}
           onClose={handleNotificationsClose}
@@ -178,6 +192,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             vertical: 'top',
             horizontal: 'right',
           }}
+          aria-labelledby="notifications-button"
         >
           <MenuItem onClick={handleNotificationsClose}>
             Nueva propiedad disponible

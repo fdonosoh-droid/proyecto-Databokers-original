@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Card, CardContent, CardHeader, CardActions } from '@mui/material';
 
 interface CustomCardProps {
@@ -8,7 +9,7 @@ interface CustomCardProps {
   sx?: object;
 }
 
-export default function CustomCard({
+const CustomCard = memo(function CustomCard({
   title,
   subtitle,
   children,
@@ -28,4 +29,6 @@ export default function CustomCard({
       {actions && <CardActions>{actions}</CardActions>}
     </Card>
   );
-}
+});
+
+export default CustomCard;

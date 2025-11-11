@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 
 interface PageTitleProps {
@@ -10,7 +11,7 @@ interface PageTitleProps {
   };
 }
 
-export default function PageTitle({ title, subtitle, action }: PageTitleProps) {
+const PageTitle = memo(function PageTitle({ title, subtitle, action }: PageTitleProps) {
   return (
     <Box
       sx={{
@@ -43,4 +44,6 @@ export default function PageTitle({ title, subtitle, action }: PageTitleProps) {
       )}
     </Box>
   );
-}
+});
+
+export default PageTitle;
