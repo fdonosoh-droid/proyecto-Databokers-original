@@ -1,28 +1,35 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import MainLayout from '@/layouts/MainLayout';
 import { PrivateRoute, RoleBasedAccess } from '@/components/auth';
+import { LoadingSpinner } from '@/components/common';
 
-// Auth Pages
+// Auth Pages (no lazy loading for auth pages)
 import LoginPage from '@/pages/LoginPage';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 
-// Main Pages
-import DashboardPage from '@/pages/DashboardPage';
-import ProjectsListPage from '@/pages/projects/ProjectsListPage';
-import ProjectDetailPage from '@/pages/projects/ProjectDetailPage';
-import ProjectFormPage from '@/pages/projects/ProjectFormPage';
-import PropertiesListPage from '@/pages/properties/PropertiesListPage';
-import PropertyDetailPage from '@/pages/properties/PropertyDetailPage';
-import PropertyFormPage from '@/pages/properties/PropertyFormPage';
-import TradeInsPage from '@/pages/TradeInsPage';
-import PublicationsPage from '@/pages/PublicationsPage';
-import ReportsPage from '@/pages/ReportsPage';
-import ProfilePage from '@/pages/ProfilePage';
+// Lazy load pages for code splitting
+const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
+const ProjectsListPage = lazy(() => import('@/pages/projects/ProjectsListPage'));
+const ProjectDetailPage = lazy(() => import('@/pages/projects/ProjectDetailPage'));
+const ProjectFormPage = lazy(() => import('@/pages/projects/ProjectFormPage'));
+const PropertiesListPage = lazy(() => import('@/pages/properties/PropertiesListPage'));
+const PropertyDetailPage = lazy(() => import('@/pages/properties/PropertyDetailPage'));
+const PropertyFormPage = lazy(() => import('@/pages/properties/PropertyFormPage'));
+const TradeInsPage = lazy(() => import('@/pages/TradeInsPage'));
+const PublicationsPage = lazy(() => import('@/pages/PublicationsPage'));
+const ReportsPage = lazy(() => import('@/pages/ReportsPage'));
+const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
+const ForbiddenPage = lazy(() => import('@/pages/ForbiddenPage'));
 
-// Error Pages
-import NotFoundPage from '@/pages/NotFoundPage';
-import ForbiddenPage from '@/pages/ForbiddenPage';
+// Wrapper component for suspense
+const PageWrapper = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<LoadingSpinner />}>
+    {children}
+  </Suspense>
+);
 
 export const router = createBrowserRouter([
   // Public routes - Auth
@@ -54,7 +61,9 @@ export const router = createBrowserRouter([
       <PrivateRoute>
         <RoleBasedAccess allowedRoles={['ADMIN', 'GESTOR']}>
           <MainLayout>
-            <DashboardPage />
+            <PageWrapper>
+              <DashboardPage />
+            </PageWrapper>
           </MainLayout>
         </RoleBasedAccess>
       </PrivateRoute>
@@ -67,7 +76,9 @@ export const router = createBrowserRouter([
       <PrivateRoute>
         <RoleBasedAccess allowedRoles={['ADMIN', 'GESTOR']}>
           <MainLayout>
-            <ProjectsListPage />
+            <PageWrapper>
+              <ProjectsListPage />
+            </PageWrapper>
           </MainLayout>
         </RoleBasedAccess>
       </PrivateRoute>
@@ -79,7 +90,9 @@ export const router = createBrowserRouter([
       <PrivateRoute>
         <RoleBasedAccess allowedRoles={['ADMIN', 'GESTOR']}>
           <MainLayout>
-            <ProjectFormPage />
+            <PageWrapper>
+              <ProjectFormPage />
+            </PageWrapper>
           </MainLayout>
         </RoleBasedAccess>
       </PrivateRoute>
@@ -91,7 +104,9 @@ export const router = createBrowserRouter([
       <PrivateRoute>
         <RoleBasedAccess allowedRoles={['ADMIN', 'GESTOR']}>
           <MainLayout>
-            <ProjectDetailPage />
+            <PageWrapper>
+              <ProjectDetailPage />
+            </PageWrapper>
           </MainLayout>
         </RoleBasedAccess>
       </PrivateRoute>
@@ -103,7 +118,9 @@ export const router = createBrowserRouter([
       <PrivateRoute>
         <RoleBasedAccess allowedRoles={['ADMIN', 'GESTOR']}>
           <MainLayout>
-            <ProjectFormPage />
+            <PageWrapper>
+              <ProjectFormPage />
+            </PageWrapper>
           </MainLayout>
         </RoleBasedAccess>
       </PrivateRoute>
@@ -116,7 +133,9 @@ export const router = createBrowserRouter([
       <PrivateRoute>
         <RoleBasedAccess allowedRoles={['ADMIN', 'GESTOR']}>
           <MainLayout>
-            <PropertiesListPage />
+            <PageWrapper>
+              <PropertiesListPage />
+            </PageWrapper>
           </MainLayout>
         </RoleBasedAccess>
       </PrivateRoute>
@@ -128,7 +147,9 @@ export const router = createBrowserRouter([
       <PrivateRoute>
         <RoleBasedAccess allowedRoles={['ADMIN', 'GESTOR']}>
           <MainLayout>
-            <PropertyFormPage />
+            <PageWrapper>
+              <PropertyFormPage />
+            </PageWrapper>
           </MainLayout>
         </RoleBasedAccess>
       </PrivateRoute>
@@ -140,7 +161,9 @@ export const router = createBrowserRouter([
       <PrivateRoute>
         <RoleBasedAccess allowedRoles={['ADMIN', 'GESTOR']}>
           <MainLayout>
-            <PropertyDetailPage />
+            <PageWrapper>
+              <PropertyDetailPage />
+            </PageWrapper>
           </MainLayout>
         </RoleBasedAccess>
       </PrivateRoute>
@@ -152,7 +175,9 @@ export const router = createBrowserRouter([
       <PrivateRoute>
         <RoleBasedAccess allowedRoles={['ADMIN', 'GESTOR']}>
           <MainLayout>
-            <PropertyFormPage />
+            <PageWrapper>
+              <PropertyFormPage />
+            </PageWrapper>
           </MainLayout>
         </RoleBasedAccess>
       </PrivateRoute>
@@ -165,7 +190,9 @@ export const router = createBrowserRouter([
       <PrivateRoute>
         <RoleBasedAccess allowedRoles={['ADMIN', 'GESTOR']}>
           <MainLayout>
-            <TradeInsPage />
+            <PageWrapper>
+              <TradeInsPage />
+            </PageWrapper>
           </MainLayout>
         </RoleBasedAccess>
       </PrivateRoute>
@@ -176,7 +203,9 @@ export const router = createBrowserRouter([
     element: (
       <PrivateRoute>
         <MainLayout>
-          <PublicationsPage />
+          <PageWrapper>
+            <PublicationsPage />
+          </PageWrapper>
         </MainLayout>
       </PrivateRoute>
     ),
@@ -187,7 +216,9 @@ export const router = createBrowserRouter([
       <PrivateRoute>
         <RoleBasedAccess allowedRoles={['ADMIN', 'GESTOR']}>
           <MainLayout>
-            <ReportsPage />
+            <PageWrapper>
+              <ReportsPage />
+            </PageWrapper>
           </MainLayout>
         </RoleBasedAccess>
       </PrivateRoute>
@@ -198,7 +229,9 @@ export const router = createBrowserRouter([
     element: (
       <PrivateRoute>
         <MainLayout>
-          <ProfilePage />
+          <PageWrapper>
+            <ProfilePage />
+          </PageWrapper>
         </MainLayout>
       </PrivateRoute>
     ),
@@ -207,10 +240,10 @@ export const router = createBrowserRouter([
   // Error routes
   {
     path: '/403',
-    element: <ForbiddenPage />,
+    element: <PageWrapper><ForbiddenPage /></PageWrapper>,
   },
   {
     path: '*',
-    element: <NotFoundPage />,
+    element: <PageWrapper><NotFoundPage /></PageWrapper>,
   },
 ]);
