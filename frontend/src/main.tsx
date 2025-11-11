@@ -6,6 +6,7 @@ import CssBaseline from '@mui/material/CssBaseline'
 import { store } from './redux/store'
 import theme from './theme'
 import './index.css'
+import './assets/print.css'
 import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
