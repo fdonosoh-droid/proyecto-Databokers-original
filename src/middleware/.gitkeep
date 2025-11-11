@@ -1,0 +1,2 @@
+# Esta carpeta contendrá los archivos de middleware
+# auth.middleware.ts - Middleware de autenticación y autorización
