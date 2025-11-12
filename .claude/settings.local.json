@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --version:*)",
+      "Bash(curl:*)",
+      "Bash(sudo -S bash -)",
+      "Bash(npm --version:*)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma:*)",
+      "Bash(npm run dev)",
+      "Bash(psql:*)",
+      "Bash(netstat:*)",
+      "Bash(ss:*)",
+      "Bash(cat:*)",
+      "Bash(ip route:*)",
+      "Bash(timeout 5 bash -c 'cat < /dev/null > /dev/tcp/172.31.112.1/5432')",
+      "Bash(npm run build:*)",
+      "Bash(lsof:*)",
+      "Bash(kill:*)",
+      "Bash(python3:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoiYWRtaW5AZGF0YWJyb2tlcnMuY2wiLCJpYXQiOjE3NjI5NTEwMDQsImV4cCI6MTc2MzAzNzQwNH0.fxfm3agdAePiSt1IHkmKtwUYX7D-2qFU9HFjn4cs_G8\")",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nIntegrar Fase 4 completa: Sistema de autenticación, backend completo y optimizaciones frontend\n\nImplementaciones principales:\n- Sistema completo de autenticación con JWT y middleware\n- Controladores y rutas para auth, users, properties, domains y business-models\n- Schema Prisma con todas las entidades del sistema\n- Scripts de seed y creación de usuario admin\n- Servicio de KPIs refactorizado y optimizado\n- Tests unitarios para componentes comunes y Redux\n- Lazy loading y code splitting en rutas del frontend\n- Documentación completa de deployment y KPIs\n\nBackend:\n- Controladores REST para todas las entidades principales\n- Middleware de autenticación y autorización\n- Validaciones y manejo de errores mejorado\n- Integración con Prisma ORM\n\nFrontend:\n- Tests con Vitest para componentes y store\n- Mejoras de rendimiento con lazy loading\n- Componentes actualizados con mejores tipos\n- Configuración de testing setup completa\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git config:*)",
+      "Bash(git pull:*)",
+      "Bash(git checkout:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(ssh-keyscan:*)",
+      "Bash(~/.ssh/known_hosts)",
+      "Bash(export NVM_DIR=\"$HOME/.nvm\")",
+      "Bash([ -s \"$NVM_DIR/nvm.sh\" ])",
+      "Bash(. \"$NVM_DIR/nvm.sh\")",
+      "Bash(find:*)",
+      "Bash(git restore:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
