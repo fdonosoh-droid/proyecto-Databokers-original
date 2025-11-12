@@ -26,13 +26,13 @@ export default function BusinessModelChart({ data }: BusinessModelChartProps) {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ porcentaje }) => `${porcentaje.toFixed(1)}%`}
+                label={(props: any) => `${props.porcentaje.toFixed(1)}%`}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="cantidad"
                 nameKey="modelo"
               >
-                {data.map((entry, index) => (
+                {data.map((_entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>

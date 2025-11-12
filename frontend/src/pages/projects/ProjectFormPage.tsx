@@ -7,7 +7,6 @@ import {
   CardContent,
   Grid,
   TextField,
-  Typography,
   MenuItem,
   IconButton,
 } from '@mui/material';
@@ -171,7 +170,7 @@ export default function ProjectFormPage() {
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               {/* Nombre */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   required
@@ -184,7 +183,7 @@ export default function ProjectFormPage() {
               </Grid>
 
               {/* Inmobiliaria */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   required
@@ -197,7 +196,7 @@ export default function ProjectFormPage() {
               </Grid>
 
               {/* Dirección */}
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
                   required
@@ -210,7 +209,7 @@ export default function ProjectFormPage() {
               </Grid>
 
               {/* Región */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   required
@@ -223,7 +222,7 @@ export default function ProjectFormPage() {
               </Grid>
 
               {/* Comuna */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   required
@@ -236,7 +235,7 @@ export default function ProjectFormPage() {
               </Grid>
 
               {/* Modelo de Negocio */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   required
@@ -254,7 +253,7 @@ export default function ProjectFormPage() {
               </Grid>
 
               {/* Estado */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   required
@@ -272,7 +271,7 @@ export default function ProjectFormPage() {
               </Grid>
 
               {/* Fecha Inicio Ventas */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   required
@@ -287,7 +286,7 @@ export default function ProjectFormPage() {
               </Grid>
 
               {/* Fecha Entrega */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   required
@@ -302,7 +301,7 @@ export default function ProjectFormPage() {
               </Grid>
 
               {/* Total Unidades */}
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   required
@@ -317,7 +316,7 @@ export default function ProjectFormPage() {
               </Grid>
 
               {/* Botones */}
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Box display="flex" gap={2} justifyContent="flex-end">
                   <Button
                     variant="outlined"

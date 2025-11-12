@@ -8,18 +8,21 @@ import {
   Button,
   Card,
   CardContent,
-  Timeline,
-  TimelineItem,
-  TimelineSeparator,
-  TimelineConnector,
-  TimelineContent,
-  TimelineDot,
-  TimelineOppositeContent,
 } from '@mui/material';
+// TODO: Install @mui/lab for Timeline components
+// import {
+//   Timeline,
+//   TimelineItem,
+//   TimelineSeparator,
+//   TimelineConnector,
+//   TimelineContent,
+//   TimelineDot,
+//   TimelineOppositeContent,
+// } from '@mui/lab';
 import {
-  CheckCircle as CheckCircleIcon,
-  Cancel as CancelIcon,
-  HourglassEmpty as HourglassIcon,
+  // CheckCircle as CheckCircleIcon,
+  // Cancel as CancelIcon,
+  // HourglassEmpty as HourglassIcon,
   Edit as EditIcon,
 } from '@mui/icons-material';
 import { useGetTradeInByIdQuery } from '../../redux/api/tradeInsApi';
@@ -74,7 +77,8 @@ export default function TradeInDetail({
     });
   };
 
-  const getTimelineIcon = (estado: TradeInEstado) => {
+  // TODO: Uncomment when Timeline component is enabled
+  /* const getTimelineIcon = (estado: TradeInEstado) => {
     switch (estado) {
       case 'APROBADO':
       case 'FINALIZADO':
@@ -85,7 +89,7 @@ export default function TradeInDetail({
       default:
         return <HourglassIcon />;
     }
-  };
+  }; */
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -118,7 +122,7 @@ export default function TradeInDetail({
               Volver
             </Button>
           )}
-          {tradeIn.estado !== 'FINALIZADO' && tradeIn.estado !== 'CANCELADO' && onEdit && (
+          {tradeIn.estado !== 'FINALIZADO' && (tradeIn.estado as string) !== 'CANCELADO' && onEdit && (
             <Button variant="contained" startIcon={<EditIcon />} onClick={onEdit}>
               Editar
             </Button>
@@ -133,7 +137,7 @@ export default function TradeInDetail({
         </Typography>
         <Divider sx={{ mb: 2 }} />
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="body2" color="text.secondary">
               Gestor
             </Typography>
@@ -143,7 +147,7 @@ export default function TradeInDetail({
                 : 'N/A'}
             </Typography>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="body2" color="text.secondary">
               Fecha de Creación
             </Typography>
@@ -152,7 +156,7 @@ export default function TradeInDetail({
             </Typography>
           </Grid>
           {tradeIn.comentarios && (
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Typography variant="body2" color="text.secondary">
                 Comentarios
               </Typography>
@@ -165,7 +169,7 @@ export default function TradeInDetail({
       {/* Propiedades */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         {/* Propiedad Entregada */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom color="error.main">
@@ -203,7 +207,7 @@ export default function TradeInDetail({
         </Grid>
 
         {/* Propiedad Recibida */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom color="success.main">
@@ -248,7 +252,7 @@ export default function TradeInDetail({
         </Typography>
         <Divider sx={{ mb: 2 }} />
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="body2" color="text.secondary">
               Diferencia
             </Typography>
@@ -260,7 +264,7 @@ export default function TradeInDetail({
             </Typography>
           </Grid>
           {tradeIn.formaPagoDiferencia && (
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="body2" color="text.secondary">
                 Forma de Pago
               </Typography>
@@ -277,7 +281,11 @@ export default function TradeInDetail({
             Historial de Estados
           </Typography>
           <Divider sx={{ mb: 2 }} />
-          <Timeline>
+          {/* TODO: Install @mui/lab for Timeline component */}
+          <Typography variant="body2" color="text.secondary">
+            Timeline component requires @mui/lab package
+          </Typography>
+          {/* <Timeline>
             {tradeIn.timeline.map((event, index) => (
               <TimelineItem key={event.id}>
                 <TimelineOppositeContent color="text.secondary">
@@ -304,12 +312,12 @@ export default function TradeInDetail({
                 </TimelineContent>
               </TimelineItem>
             ))}
-          </Timeline>
+          </Timeline> */}
         </Paper>
       )}
 
       {/* Acciones según estado */}
-      {onChangeStatus && tradeIn.estado !== 'FINALIZADO' && tradeIn.estado !== 'CANCELADO' && (
+      {onChangeStatus && tradeIn.estado !== 'FINALIZADO' && (tradeIn.estado as string) !== 'CANCELADO' && (
         <Paper sx={{ p: 3, mt: 3 }}>
           <Typography variant="h6" gutterBottom>
             Acciones
@@ -352,7 +360,7 @@ export default function TradeInDetail({
                 Finalizar Canje
               </Button>
             )}
-            {tradeIn.estado !== 'CANCELADO' && (
+            {(tradeIn.estado as string) !== 'CANCELADO' && (
               <Button
                 variant="outlined"
                 color="error"

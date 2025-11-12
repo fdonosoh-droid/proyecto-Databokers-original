@@ -1,4 +1,4 @@
-import { ComponentType } from 'react';
+import type { ComponentType } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAppSelector } from '@/redux/hooks';
 import { selectIsAuthenticated, selectCurrentUser } from '@/redux/slices/authSlice';

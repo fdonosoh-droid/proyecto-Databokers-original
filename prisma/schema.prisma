@@ -1,0 +1,420 @@
+// DATABROKERS - PRISMA SCHEMA
+// Sistema de Gestión Inmobiliaria
+// Versión: 3.0.0
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =====================================================
+// 1. SISTEMA DE DOMINIOS (Parametrización)
+// =====================================================
+
+model dom_categorias {
+  id          Int              @id @default(autoincrement())
+  codigo      String           @unique @db.VarChar(50)
+  nombre      String           @db.VarChar(100)
+  descripcion String?
+  activo      Boolean          @default(true)
+  created_at  DateTime         @default(now())
+  updated_at  DateTime         @updatedAt
+  parametros  dom_parametros[]
+
+  @@map("dom_categorias")
+}
+
+model dom_parametros {
+  id           Int             @id @default(autoincrement())
+  categoria_id Int
+  codigo       String          @db.VarChar(50)
+  nombre       String          @db.VarChar(100)
+  valor        String?         @db.VarChar(255)
+  orden        Int             @default(0)
+  activo       Boolean         @default(true)
+  metadata     Json?
+  created_at   DateTime        @default(now())
+  updated_at   DateTime        @updatedAt
+  categoria    dom_categorias  @relation(fields: [categoria_id], references: [id])
+
+  @@unique([categoria_id, codigo])
+  @@map("dom_parametros")
+}
+
+// =====================================================
+// 2. USUARIOS Y ROLES
+// =====================================================
+
+model roles {
+  id          Int        @id @default(autoincrement())
+  codigo      String     @unique @db.VarChar(50)
+  nombre      String     @db.VarChar(100)
+  descripcion String?
+  permisos    Json?
+  activo      Boolean    @default(true)
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  usuarios    usuarios[]
+
+  @@map("roles")
+}
+
+model usuarios {
+  id                        Int                         @id @default(autoincrement())
+  email                     String                      @unique @db.VarChar(255)
+  password                  String                      @db.VarChar(255)
+  nombre                    String                      @db.VarChar(200)
+  apellido                  String?                     @db.VarChar(200)
+  telefono                  String?                     @db.VarChar(20)
+  rol_id                    Int?
+  activo                    Boolean                     @default(true)
+  ultimo_acceso             DateTime?
+  created_at                DateTime                    @default(now())
+  updated_at                DateTime                    @updatedAt
+  rol                       roles?                      @relation(fields: [rol_id], references: [id])
+  propiedades_gestionadas   propiedades[]               @relation("gestor_propiedades")
+  publicaciones_asignadas   publicaciones_corredores[]  @relation("corredor_publicaciones")
+  canjes_gestionados        canjes[]
+  auditoria_logs            auditoria_log[]
+
+  @@map("usuarios")
+}
+
+// =====================================================
+// 3. MODELOS DE NEGOCIO
+// =====================================================
+
+model modelos_negocio {
+  id                    Int           @id @default(autoincrement())
+  codigo                String        @unique @db.VarChar(50)
+  nombre                String        @db.VarChar(200)
+  descripcion           String?
+  comision_porcentaje   Decimal?      @db.Decimal(5, 2)
+  activo                Boolean       @default(true)
+  configuracion         Json?
+  created_at            DateTime      @default(now())
+  updated_at            DateTime      @updatedAt
+  propiedades           propiedades[]
+  proyectos             proyectos[]
+
+  @@map("modelos_negocio")
+}
+
+// =====================================================
+// 4. PROPIEDADES
+// =====================================================
+
+model propiedades {
+  id                         Int                        @id @default(autoincrement())
+  codigo                     String                     @unique @db.VarChar(50)
+  titulo                     String                     @db.VarChar(300)
+  descripcion                String?
+  tipo_propiedad_id          Int
+  direccion                  String                     @db.VarChar(300)
+  comuna_id                  Int
+  region_id                  Int
+  precio                     Decimal                    @db.Decimal(15, 2)
+  superficie_total           Decimal?                   @db.Decimal(10, 2)
+  superficie_util            Decimal?                   @db.Decimal(10, 2)
+  dormitorios                Int?
+  banos                      Int?
+  estacionamientos           Int?
+  bodegas                    Int?
+  estado_propiedad_id        Int
+  estado_construccion_id     Int?
+  modelo_negocio_id          Int
+  gestor_id                  Int?
+  comision_porcentaje        Decimal?                   @db.Decimal(5, 2)
+  comision_monto             Decimal?                   @db.Decimal(15, 2)
+  caracteristicas            Json?
+  imagenes                   Json?
+  fecha_publicacion          DateTime?
+  fecha_venta                DateTime?
+  activo                     Boolean                    @default(true)
+  created_at                 DateTime                   @default(now())
+  updated_at                 DateTime                   @updatedAt
+  modelo_negocio             modelos_negocio            @relation(fields: [modelo_negocio_id], references: [id])
+  gestor                     usuarios?                  @relation("gestor_propiedades", fields: [gestor_id], references: [id])
+  propiedades_nuevas         propiedades_nuevas?
+  publicaciones              publicaciones_corredores[]
+  canjes_entregadas          canjes[]                   @relation("propiedad_entregada")
+  canjes_recibidas           canjes[]                   @relation("propiedad_recibida")
+  transacciones              transacciones[]
+
+  @@map("propiedades")
+}
+
+model propiedades_nuevas {
+  id                     Int          @id @default(autoincrement())
+  propiedad_id           Int          @unique
+  proyecto_id            Int
+  tipologia_id           Int?
+  numero_unidad          String?      @db.VarChar(20)
+  piso                   Int?
+  fecha_entrega_estimada DateTime?
+  created_at             DateTime     @default(now())
+  updated_at             DateTime     @updatedAt
+  propiedad              propiedades  @relation(fields: [propiedad_id], references: [id], onDelete: Cascade)
+  proyecto               proyectos    @relation(fields: [proyecto_id], references: [id])
+  tipologia              tipologias?  @relation(fields: [tipologia_id], references: [id])
+
+  @@map("propiedades_nuevas")
+}
+
+// =====================================================
+// 5. PROYECTOS Y TIPOLOGÍAS
+// =====================================================
+
+model proyectos {
+  id                        Int                  @id @default(autoincrement())
+  nombre                    String               @db.VarChar(200)
+  inmobiliaria              String?              @db.VarChar(200)
+  direccion                 String               @db.VarChar(300)
+  comuna_id                 Int
+  region_id                 Int
+  estado_proyecto_id        Int
+  fecha_inicio_ventas       DateTime?
+  fecha_entrega_estimada    DateTime?
+  total_unidades            Int?
+  unidades_disponibles      Int?                 @default(0)
+  descripcion               String?
+  caracteristicas           Json?
+  imagenes                  Json?
+  latitud                   Decimal?             @db.Decimal(10, 8)
+  longitud                  Decimal?             @db.Decimal(11, 8)
+  modelo_negocio_id         Int?
+  activo                    Boolean              @default(true)
+  created_at                DateTime             @default(now())
+  updated_at                DateTime             @updatedAt
+  modelo_negocio            modelos_negocio?     @relation(fields: [modelo_negocio_id], references: [id])
+  tipologias                tipologias[]
+  propiedades_nuevas        propiedades_nuevas[]
+
+  @@map("proyectos")
+}
+
+model tipologias {
+  id                     Int                  @id @default(autoincrement())
+  proyecto_id            Int
+  nombre                 String               @db.VarChar(100)
+  tipo_propiedad_id      Int
+  superficie_total       Decimal?             @db.Decimal(10, 2)
+  superficie_util        Decimal?             @db.Decimal(10, 2)
+  superficie_terraza     Decimal?             @db.Decimal(10, 2)
+  dormitorios            Int?
+  banos                  Int?
+  estacionamientos       Int?
+  bodegas                Int?
+  orientacion_id         Int?
+  piso_desde             Int?
+  piso_hasta             Int?
+  precio_desde           Decimal?             @db.Decimal(15, 2)
+  precio_hasta           Decimal?             @db.Decimal(15, 2)
+  caracteristicas        Json?
+  imagenes               Json?
+  activo                 Boolean              @default(true)
+  created_at             DateTime             @default(now())
+  updated_at             DateTime             @updatedAt
+  proyecto               proyectos            @relation(fields: [proyecto_id], references: [id], onDelete: Cascade)
+  propiedades_nuevas     propiedades_nuevas[]
+
+  @@map("tipologias")
+}
+
+// =====================================================
+// 6. CANJES / INTERCAMBIOS
+// =====================================================
+
+model canjes {
+  id                          Int          @id @default(autoincrement())
+  codigo                      String       @unique @db.VarChar(50)
+  propiedad_entregada_id      Int
+  valor_tasacion_entregada    Decimal      @db.Decimal(15, 2)
+  propiedad_recibida_id       Int
+  valor_tasacion_recibida     Decimal      @db.Decimal(15, 2)
+  diferencia_valor            Decimal?     @db.Decimal(15, 2)
+  forma_pago_diferencia_id    Int?
+  estado_canje_id             Int
+  gestor_id                   Int?
+  fecha_inicio                DateTime     @default(now())
+  fecha_finalizacion          DateTime?
+  observaciones               String?
+  documentos                  Json?
+  activo                      Boolean      @default(true)
+  created_at                  DateTime     @default(now())
+  updated_at                  DateTime     @updatedAt
+  propiedad_entregada         propiedades  @relation("propiedad_entregada", fields: [propiedad_entregada_id], references: [id])
+  propiedad_recibida          propiedades  @relation("propiedad_recibida", fields: [propiedad_recibida_id], references: [id])
+  gestor                      usuarios?    @relation(fields: [gestor_id], references: [id])
+
+  @@map("canjes")
+}
+
+// =====================================================
+// 7. PUBLICACIONES A CORREDORES EXTERNOS
+// =====================================================
+
+model publicaciones_corredores {
+  id                     Int                          @id @default(autoincrement())
+  codigo                 String                       @unique @db.VarChar(50)
+  propiedad_id           Int
+  corredor_id            Int
+  fecha_inicio           DateTime                     @default(now())
+  fecha_fin              DateTime?
+  estado_publicacion_id  Int
+  exclusividad           Boolean                      @default(false)
+  comision_porcentaje    Decimal?                     @db.Decimal(5, 2)
+  comision_monto         Decimal?                     @db.Decimal(15, 2)
+  total_visualizaciones  Int                          @default(0)
+  total_contactos        Int                          @default(0)
+  observaciones          String?
+  activo                 Boolean                      @default(true)
+  created_at             DateTime                     @default(now())
+  updated_at             DateTime                     @updatedAt
+  propiedad              propiedades                  @relation(fields: [propiedad_id], references: [id])
+  corredor               usuarios                     @relation("corredor_publicaciones", fields: [corredor_id], references: [id])
+  actividades            actividades_publicacion[]
+
+  @@map("publicaciones_corredores")
+}
+
+model actividades_publicacion {
+  id             Int                      @id @default(autoincrement())
+  publicacion_id Int
+  tipo_actividad String                   @db.VarChar(100)
+  descripcion    String?
+  metadata       Json?
+  created_at     DateTime                 @default(now())
+  publicacion    publicaciones_corredores @relation(fields: [publicacion_id], references: [id], onDelete: Cascade)
+
+  @@map("actividades_publicacion")
+}
+
+// =====================================================
+// 8. TRANSACCIONES Y VENTAS
+// =====================================================
+
+model transacciones {
+  id                    Int          @id @default(autoincrement())
+  codigo                String       @unique @db.VarChar(50)
+  propiedad_id          Int
+  tipo_transaccion_id   Int
+  precio_venta          Decimal      @db.Decimal(15, 2)
+  comision_total        Decimal?     @db.Decimal(15, 2)
+  comision_neta_agencia Decimal?     @db.Decimal(15, 2)
+  fecha_transaccion     DateTime
+  estado_transaccion_id Int
+  observaciones         String?
+  documentos            Json?
+  activo                Boolean      @default(true)
+  created_at            DateTime     @default(now())
+  updated_at            DateTime     @updatedAt
+  propiedad             propiedades  @relation(fields: [propiedad_id], references: [id])
+
+  @@map("transacciones")
+}
+
+// =====================================================
+// 9. REPORTES
+// =====================================================
+
+model reportes {
+  id                  Int       @id @default(autoincrement())
+  codigo              String    @unique @db.VarChar(50)
+  tipo_reporte_id     Int
+  formato_id          Int
+  nombre              String    @db.VarChar(200)
+  descripcion         String?
+  parametros          Json?
+  ruta_archivo        String?   @db.VarChar(500)
+  fecha_generacion    DateTime  @default(now())
+  generado_por        Int?
+  total_descargas     Int       @default(0)
+  activo              Boolean   @default(true)
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+
+  @@map("reportes")
+}
+
+model programacion_reportes {
+  id               Int      @id @default(autoincrement())
+  tipo_reporte_id  Int
+  formato_id       Int
+  frecuencia       String   @db.VarChar(50)
+  dia_semana       Int?
+  dia_mes          Int?
+  hora             String?  @db.VarChar(5)
+  destinatarios    Json?
+  parametros       Json?
+  activo           Boolean  @default(true)
+  ultimo_envio     DateTime?
+  proximo_envio    DateTime?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  @@map("programacion_reportes")
+}
+
+// =====================================================
+// 10. KPIs Y ALERTAS
+// =====================================================
+
+model kpi_valores {
+  id              Int      @id @default(autoincrement())
+  kpi_id          Int
+  entidad_tipo_id Int?
+  entidad_id      Int?
+  periodo         String   @db.VarChar(20)
+  valor           Decimal  @db.Decimal(15, 4)
+  valor_anterior  Decimal? @db.Decimal(15, 4)
+  variacion       Decimal? @db.Decimal(10, 2)
+  metadata        Json?
+  fecha_calculo   DateTime @default(now())
+  created_at      DateTime @default(now())
+
+  @@map("kpi_valores")
+}
+
+model alertas {
+  id            Int      @id @default(autoincrement())
+  tipo_alerta   String   @db.VarChar(100)
+  severidad     String   @db.VarChar(20)
+  titulo        String   @db.VarChar(200)
+  mensaje       String
+  entidad_tipo  String?  @db.VarChar(50)
+  entidad_id    Int?
+  leida         Boolean  @default(false)
+  fecha_leida   DateTime?
+  metadata      Json?
+  activo        Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@map("alertas")
+}
+
+// =====================================================
+// 11. AUDITORÍA
+// =====================================================
+
+model auditoria_log {
+  id              Int      @id @default(autoincrement())
+  usuario_id      Int?
+  accion_id       Int
+  entidad_tipo_id Int?
+  entidad_id      Int?
+  descripcion     String?
+  valores_previos Json?
+  valores_nuevos  Json?
+  ip_address      String?  @db.VarChar(45)
+  user_agent      String?
+  created_at      DateTime @default(now())
+  usuario         usuarios? @relation(fields: [usuario_id], references: [id])
+
+  @@map("auditoria_log")
+}

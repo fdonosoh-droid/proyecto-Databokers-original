@@ -52,7 +52,7 @@ export const tradeInsApi = baseApi.injectEndpoints({
     // Obtener un canje por ID
     getTradeInById: builder.query<TradeIn, string>({
       query: (id) => `/canjes/${id}`,
-      providesTags: (result, error, id) => [{ type: 'TradeIns', id }],
+      providesTags: (_result, _error, id) => [{ type: 'TradeIns', id }],
     }),
 
     // Crear un canje
@@ -75,7 +75,7 @@ export const tradeInsApi = baseApi.injectEndpoints({
         method: 'PATCH',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result, _error, { id }) => [
         { type: 'TradeIns', id },
         { type: 'TradeIns', id: 'LIST' },
       ],
@@ -88,7 +88,7 @@ export const tradeInsApi = baseApi.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result, _error, { id }) => [
         { type: 'TradeIns', id },
         { type: 'TradeIns', id: 'LIST' },
       ],
@@ -107,7 +107,7 @@ export const tradeInsApi = baseApi.injectEndpoints({
     getTradeInStats: builder.query<TradeInStats, TradeInFilters | void>({
       query: (filters) => ({
         url: '/canjes/estadisticas',
-        params: filters,
+        params: filters || {},
       }),
       providesTags: [{ type: 'TradeIns', id: 'STATS' }],
     }),
@@ -118,7 +118,7 @@ export const tradeInsApi = baseApi.injectEndpoints({
         url: `/canjes/${id}/finalizar`,
         method: 'POST',
       }),
-      invalidatesTags: (result, error, id) => [
+      invalidatesTags: (_result, _error, id) => [
         { type: 'TradeIns', id },
         { type: 'TradeIns', id: 'LIST' },
       ],
@@ -131,7 +131,7 @@ export const tradeInsApi = baseApi.injectEndpoints({
         method: 'POST',
         body: { motivo },
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result, _error, { id }) => [
         { type: 'TradeIns', id },
         { type: 'TradeIns', id: 'LIST' },
       ],

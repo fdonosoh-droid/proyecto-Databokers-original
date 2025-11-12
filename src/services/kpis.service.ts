@@ -1,12 +1,37 @@
 /**
- * DATABROKERS - KPIs SERVICE
- * Servicio para cálculo automático de KPIs (Key Performance Indicators)
+ * KPIS SERVICE
+ * =====================================================
+ * Sistema Databrokers - Servicio de Cálculo de KPIs
  * 
- * @version 1.0
- * @author Sistema Databrokers
+ * DESCRIPCIÓN:
+ * Servicio centralizado para el cálculo, almacenamiento y análisis de KPIs.
+ * Incluye los 9 KPIs principales del sistema y permite cálculos personalizados.
+ * 
+ * KPIs IMPLEMENTADOS:
+ * 1. Tasa de Conversión: (Vendidas / Totales) × 100
+ * 2. Tiempo Promedio de Venta: Días desde publicación hasta venta
+ * 3. Valorización Total: Suma de precios de propiedades activas
+ * 4. Comisión Total Generada: Suma de comisiones de ventas
+ * 5. Comisión Neta Agencia: Comisión Total - Split Corredores
+ * 6. Índice de Stock: (Stock Actual / Stock Objetivo) × 100
+ * 7. Eficiencia de Corredor: (Ventas / Propiedades Asignadas) × 100
+ * 8. Tasa de Canje Exitoso: (Canjes Finalizados / Iniciados) × 100
+ * 9. ROI por Modelo: ((Ingresos - Costos) / Costos) × 100
+ * 
+ * CARACTERÍSTICAS:
+ * - Cálculo automático periódico (job scheduler)
+ * - Almacenamiento histórico en kpi_valores
+ * - Comparación período a período
+ * - Generación de alertas por umbrales
+ * - Análisis de tendencias
+ * - Consolidación por diferentes entidades
+ * 
+ * AUTOR: Sistema Databrokers
+ * FECHA: Noviembre 2025
+ * VERSIÓN: 1.0
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import cron from 'node-cron';
 
 const prisma = new PrismaClient();
@@ -15,828 +40,1043 @@ const prisma = new PrismaClient();
 // TIPOS Y CONSTANTES
 // =====================================================
 
+/**
+ * Tipos de entidades para KPIs
+ */
+enum EntityType {
+  BUSINESS_MODEL = 1,  // Modelo de Negocio
+  MANAGER = 2,         // Gestor
+  BROKER = 3,          // Corredor
+  PROJECT = 4,         // Proyecto
+  PROPERTY = 5         // Propiedad
+}
+
+/**
+ * Tipos de período
+ */
+enum PeriodType {
+  DAILY = 1,
+  WEEKLY = 2,
+  MONTHLY = 3,
+  QUARTERLY = 4,
+  YEARLY = 5
+}
+
+/**
+ * Códigos de KPIs principales
+ */
+enum KPICode {
+  CONVERSION_RATE = 'TASA_CONVERSION',
+  AVG_SALE_TIME = 'TIEMPO_PROMEDIO_VENTA',
+  TOTAL_VALUATION = 'VALORIZACION_TOTAL',
+  TOTAL_COMMISSION = 'COMISION_TOTAL_GENERADA',
+  NET_COMMISSION = 'COMISION_NETA_AGENCIA',
+  STOCK_INDEX = 'INDICE_STOCK',
+  BROKER_EFFICIENCY = 'EFICIENCIA_CORREDOR',
+  TRADEIN_SUCCESS_RATE = 'TASA_CANJE_EXITOSO',
+  ROI = 'ROI_MODELO'
+}
+
+/**
+ * Resultado de cálculo de KPI
+ */
 interface KPIResult {
-  kpi_id: number;
-  valor: number;
-  periodo: Date;
+  code: string;
+  value: number;
+  previousValue?: number;
+  percentageChange?: number;
+  trend?: 'up' | 'down' | 'stable';
+  isWithinThreshold: boolean;
   metadata?: any;
 }
 
-interface KPIComparison {
-  actual: number;
-  anterior: number;
-  variacion: number;
-  porcentaje_variacion: number;
+/**
+ * Configuración de KPI
+ */
+interface KPIConfig {
+  id: number;
+  code: string;
+  name: string;
+  minThreshold?: number;
+  maxThreshold?: number;
 }
 
-// Códigos de KPIs del sistema
-enum KPI_CODES {
-  TASA_CONVERSION = 'TASA_CONVERSION',
-  TIEMPO_PROMEDIO_VENTA = 'TIEMPO_PROMEDIO_VENTA',
-  VALORIZACION_TOTAL = 'VALORIZACION_TOTAL',
-  COMISION_TOTAL = 'COMISION_TOTAL',
-  COMISION_NETA = 'COMISION_NETA',
-  INDICE_STOCK = 'INDICE_STOCK',
-  EFICIENCIA_CORREDOR = 'EFICIENCIA_CORREDOR',
-  TASA_CANJE_EXITOSO = 'TASA_CANJE_EXITOSO',
-  ROI_MODELO = 'ROI_MODELO'
+/**
+ * Parámetros de período
+ */
+interface PeriodParams {
+  startDate: Date;
+  endDate: Date;
+  periodType: PeriodType;
+}
+
+/**
+ * Parámetros de entidad
+ */
+interface EntityParams {
+  entityType: EntityType;
+  entityId: number;
 }
 
 // =====================================================
-// FUNCIONES DE CÁLCULO DE KPIs
+// CLASE PRINCIPAL
 // =====================================================
 
-/**
- * KPI 1: Tasa de Conversión
- * Fórmula: (Propiedades Vendidas / Total Propiedades) * 100
- */
-async function calcularTasaConversion(
-  modeloNegocioId?: number,
-  fechaInicio?: Date,
-  fechaFin?: Date
-): Promise<number> {
-  const where: any = {};
+export class KPIsService {
   
-  if (modeloNegocioId) {
-    where.modelo_negocio_id = modeloNegocioId;
-  }
+  private static instance: KPIsService;
+  private kpiConfigs: Map<string, KPIConfig> = new Map();
+  private isInitialized: boolean = false;
 
-  if (fechaInicio || fechaFin) {
-    where.fecha_publicacion = {};
-    if (fechaInicio) where.fecha_publicacion.gte = fechaInicio;
-    if (fechaFin) where.fecha_publicacion.lte = fechaFin;
-  }
-
-  // Obtener ID del estado "VENDIDA"
-  const estadoVendida = await prisma.dom_parametros.findFirst({
-    where: {
-      categoria: { codigo: 'ESTADO_PROPIEDAD' },
-      codigo: 'VENDIDA'
+  /**
+   * Singleton pattern
+   */
+  public static getInstance(): KPIsService {
+    if (!KPIsService.instance) {
+      KPIsService.instance = new KPIsService();
     }
-  });
-
-  if (!estadoVendida) return 0;
-
-  const [total, vendidas] = await Promise.all([
-    prisma.propiedades.count({ where }),
-    prisma.propiedades.count({
-      where: {
-        ...where,
-        estado_propiedad_id: estadoVendida.id
-      }
-    })
-  ]);
-
-  if (total === 0) return 0;
-
-  return Number(((vendidas / total) * 100).toFixed(2));
-}
-
-/**
- * KPI 2: Tiempo Promedio de Venta (en días)
- * Fórmula: Promedio(Fecha Venta - Fecha Publicación)
- */
-async function calcularTiempoPromedioVenta(
-  modeloNegocioId?: number,
-  fechaInicio?: Date,
-  fechaFin?: Date
-): Promise<number> {
-  const where: any = {};
-  
-  if (modeloNegocioId) {
-    where.propiedad = {
-      modelo_negocio_id: modeloNegocioId
-    };
+    return KPIsService.instance;
   }
 
-  if (fechaInicio || fechaFin) {
-    where.fecha_venta = {};
-    if (fechaInicio) where.fecha_venta.gte = fechaInicio;
-    if (fechaFin) where.fecha_venta.lte = fechaFin;
-  }
+  /**
+   * Inicializar servicio y cargar configuraciones
+   */
+  async initialize() {
+    if (this.isInitialized) return;
 
-  // Obtener todas las transacciones de venta
-  const transacciones = await prisma.transacciones.findMany({
-    where: {
-      ...where,
-      fecha_venta: { not: null }
-    },
-    include: {
-      propiedad: {
-        select: {
-          fecha_publicacion: true
-        }
-      }
+    try {
+      // Cargar configuraciones de KPIs desde la base de datos
+      const kpis = await prisma.kpis.findMany({
+        where: { activo: true }
+      });
+
+      kpis.forEach(kpi => {
+        this.kpiConfigs.set(kpi.codigo, {
+          id: kpi.id,
+          code: kpi.codigo,
+          name: kpi.nombre,
+          minThreshold: kpi.umbral_min ? parseFloat(kpi.umbral_min.toString()) : undefined,
+          maxThreshold: kpi.umbral_max ? parseFloat(kpi.umbral_max.toString()) : undefined
+        });
+      });
+
+      this.isInitialized = true;
+      console.log('✅ KPIsService initialized with', kpis.length, 'KPIs');
+    } catch (error) {
+      console.error('❌ Error initializing KPIsService:', error);
+      throw error;
     }
-  });
-
-  if (transacciones.length === 0) return 0;
-
-  // Calcular días para cada venta
-  const diasPorVenta = transacciones.map(t => {
-    if (!t.fecha_venta || !t.propiedad.fecha_publicacion) return 0;
-    
-    const diffTime = t.fecha_venta.getTime() - t.propiedad.fecha_publicacion.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  });
-
-  // Calcular promedio
-  const suma = diasPorVenta.reduce((acc, dias) => acc + dias, 0);
-  return Number((suma / diasPorVenta.length).toFixed(1));
-}
-
-/**
- * KPI 3: Valorización Total
- * Fórmula: Suma(Precio de todas las propiedades activas)
- */
-async function calcularValorizacionTotal(
-  modeloNegocioId?: number,
-  fechaInicio?: Date,
-  fechaFin?: Date
-): Promise<number> {
-  const where: any = {};
-  
-  if (modeloNegocioId) {
-    where.modelo_negocio_id = modeloNegocioId;
   }
 
-  // Solo propiedades disponibles y reservadas (activas en stock)
-  const estadosActivos = await prisma.dom_parametros.findMany({
-    where: {
-      categoria: { codigo: 'ESTADO_PROPIEDAD' },
-      codigo: { in: ['DISPONIBLE', 'RESERVADA'] }
-    }
-  });
-
-  where.estado_propiedad_id = {
-    in: estadosActivos.map(e => e.id)
-  };
-
-  const resultado = await prisma.propiedades.aggregate({
-    where,
-    _sum: {
-      precio: true
-    }
-  });
-
-  return resultado._sum.precio || 0;
-}
-
-/**
- * KPI 4: Comisión Total Generada
- * Fórmula: Suma(Comisión de todas las transacciones finalizadas)
- */
-async function calcularComisionTotal(
-  modeloNegocioId?: number,
-  fechaInicio?: Date,
-  fechaFin?: Date
-): Promise<number> {
-  const where: any = {};
-  
-  if (modeloNegocioId) {
-    where.propiedad = {
-      modelo_negocio_id: modeloNegocioId
-    };
-  }
-
-  if (fechaInicio || fechaFin) {
-    where.fecha_venta = {};
-    if (fechaInicio) where.fecha_venta.gte = fechaInicio;
-    if (fechaFin) where.fecha_venta.lte = fechaFin;
-  }
-
-  // Obtener estado finalizada
-  const estadoFinalizada = await prisma.dom_parametros.findFirst({
-    where: {
-      categoria: { codigo: 'ESTADO_TRANSACCION' },
-      codigo: 'FINALIZADA'
-    }
-  });
-
-  if (estadoFinalizada) {
-    where.estado_transaccion_id = estadoFinalizada.id;
-  }
-
-  const resultado = await prisma.transacciones.aggregate({
-    where,
-    _sum: {
-      comision_total: true
-    }
-  });
-
-  return resultado._sum.comision_total || 0;
-}
-
-/**
- * KPI 5: Comisión Neta Agencia
- * Fórmula: Comisión Total - Comisiones a Corredores Externos
- */
-async function calcularComisionNeta(
-  modeloNegocioId?: number,
-  fechaInicio?: Date,
-  fechaFin?: Date
-): Promise<number> {
-  // Calcular comisión total
-  const comisionTotal = await calcularComisionTotal(modeloNegocioId, fechaInicio, fechaFin);
-
-  // Calcular comisiones pagadas a corredores
-  const wherePublicaciones: any = {};
-  
-  if (modeloNegocioId) {
-    wherePublicaciones.propiedad = {
-      modelo_negocio_id: modeloNegocioId
-    };
-  }
-
-  if (fechaInicio || fechaFin) {
-    wherePublicaciones.fecha_cierre = {};
-    if (fechaInicio) wherePublicaciones.fecha_cierre.gte = fechaInicio;
-    if (fechaFin) wherePublicaciones.fecha_cierre.lte = fechaFin;
-  }
-
-  // Estado finalizada
-  const estadoFinalizada = await prisma.dom_parametros.findFirst({
-    where: {
-      categoria: { codigo: 'ESTADO_PUBLICACION' },
-      codigo: 'FINALIZADA'
-    }
-  });
-
-  if (estadoFinalizada) {
-    wherePublicaciones.estado_publicacion_id = estadoFinalizada.id;
-  }
-
-  const resultadoCorredores = await prisma.publicaciones_corredores.aggregate({
-    where: wherePublicaciones,
-    _sum: {
-      comision_monto: true
-    }
-  });
-
-  const comisionesCorredores = resultadoCorredores._sum.comision_monto || 0;
-
-  return comisionTotal - comisionesCorredores;
-}
-
-/**
- * KPI 6: Índice de Stock
- * Fórmula: (Propiedades Disponibles / Propiedades Vendidas Último Mes) * 30
- * Indica cuántos días de stock hay basado en el ritmo de ventas
- */
-async function calcularIndiceStock(
-  modeloNegocioId?: number
-): Promise<number> {
-  const where: any = {};
-  
-  if (modeloNegocioId) {
-    where.modelo_negocio_id = modeloNegocioId;
-  }
-
-  // Propiedades disponibles
-  const estadoDisponible = await prisma.dom_parametros.findFirst({
-    where: {
-      categoria: { codigo: 'ESTADO_PROPIEDAD' },
-      codigo: 'DISPONIBLE'
-    }
-  });
-
-  const disponibles = await prisma.propiedades.count({
-    where: {
-      ...where,
-      estado_propiedad_id: estadoDisponible?.id
-    }
-  });
-
-  // Ventas del último mes
-  const hace30Dias = new Date();
-  hace30Dias.setDate(hace30Dias.getDate() - 30);
-
-  const estadoVendida = await prisma.dom_parametros.findFirst({
-    where: {
-      categoria: { codigo: 'ESTADO_PROPIEDAD' },
-      codigo: 'VENDIDA'
-    }
-  });
-
-  const ventasUltimoMes = await prisma.transacciones.count({
-    where: {
-      propiedad: modeloNegocioId ? { modelo_negocio_id: modeloNegocioId } : undefined,
-      fecha_venta: {
-        gte: hace30Dias
-      }
-    }
-  });
-
-  if (ventasUltimoMes === 0) return disponibles > 0 ? 999 : 0;
-
-  const indice = (disponibles / ventasUltimoMes) * 30;
-  return Number(indice.toFixed(1));
-}
-
-/**
- * KPI 7: Eficiencia de Corredor
- * Fórmula: (Publicaciones Finalizadas / Total Publicaciones) * 100
- */
-async function calcularEficienciaCorredor(
-  corredorId?: number,
-  fechaInicio?: Date,
-  fechaFin?: Date
-): Promise<number> {
-  const where: any = {};
-  
-  if (corredorId) {
-    where.corredor_id = corredorId;
-  }
-
-  if (fechaInicio || fechaFin) {
-    where.fecha_inicio = {};
-    if (fechaInicio) where.fecha_inicio.gte = fechaInicio;
-    if (fechaFin) where.fecha_inicio.lte = fechaFin;
-  }
-
-  const estadoFinalizada = await prisma.dom_parametros.findFirst({
-    where: {
-      categoria: { codigo: 'ESTADO_PUBLICACION' },
-      codigo: 'FINALIZADA'
-    }
-  });
-
-  const [total, finalizadas] = await Promise.all([
-    prisma.publicaciones_corredores.count({ where }),
-    prisma.publicaciones_corredores.count({
-      where: {
-        ...where,
-        estado_publicacion_id: estadoFinalizada?.id
-      }
-    })
-  ]);
-
-  if (total === 0) return 0;
-
-  return Number(((finalizadas / total) * 100).toFixed(2));
-}
-
-/**
- * KPI 8: Tasa de Canje Exitoso
- * Fórmula: (Canjes Finalizados / Total Canjes) * 100
- */
-async function calcularTasaCanjeExitoso(
-  modeloNegocioId?: number,
-  fechaInicio?: Date,
-  fechaFin?: Date
-): Promise<number> {
-  const where: any = {};
-  
-  if (modeloNegocioId) {
-    where.modelo_negocio_id = modeloNegocioId;
-  }
-
-  if (fechaInicio || fechaFin) {
-    where.fecha_inicio = {};
-    if (fechaInicio) where.fecha_inicio.gte = fechaInicio;
-    if (fechaFin) where.fecha_inicio.lte = fechaFin;
-  }
-
-  const estadoFinalizado = await prisma.dom_parametros.findFirst({
-    where: {
-      categoria: { codigo: 'ESTADO_CANJE' },
-      codigo: 'FINALIZADO'
-    }
-  });
-
-  const [total, finalizados] = await Promise.all([
-    prisma.canjes.count({ where }),
-    prisma.canjes.count({
-      where: {
-        ...where,
-        estado_canje_id: estadoFinalizado?.id
-      }
-    })
-  ]);
-
-  if (total === 0) return 0;
-
-  return Number(((finalizados / total) * 100).toFixed(2));
-}
-
-/**
- * KPI 9: ROI por Modelo (Return on Investment)
- * Fórmula: ((Comisión Neta - Costos Operacionales) / Costos Operacionales) * 100
- * Nota: Por ahora calculamos solo con comisión neta, costos pueden agregarse después
- */
-async function calcularROIModelo(
-  modeloNegocioId: number,
-  fechaInicio?: Date,
-  fechaFin?: Date
-): Promise<number> {
-  const comisionNeta = await calcularComisionNeta(modeloNegocioId, fechaInicio, fechaFin);
-  
-  // Por ahora, asumimos costos del 30% de la comisión neta
-  // Este valor puede venir de una tabla de configuración
-  const costosEstimados = comisionNeta * 0.30;
-  
-  if (costosEstimados === 0) return 0;
-
-  const roi = ((comisionNeta - costosEstimados) / costosEstimados) * 100;
-  return Number(roi.toFixed(2));
-}
-
-// =====================================================
-// FUNCIONES DE ALMACENAMIENTO
-// =====================================================
-
-/**
- * Almacenar valor de KPI calculado
- */
-async function almacenarKPI(
-  codigoKPI: string,
-  valor: number,
-  periodo: Date,
-  entidadId?: number,
-  metadata?: any
-): Promise<void> {
-  // Obtener ID del KPI
-  const kpi = await prisma.dom_parametros.findFirst({
-    where: {
-      categoria: { codigo: 'KPI_TIPO' },
-      codigo: codigoKPI
-    }
-  });
-
-  if (!kpi) {
-    console.error(`KPI no encontrado: ${codigoKPI}`);
-    return;
-  }
-
-  // Verificar si ya existe un valor para este periodo
-  const existente = await prisma.kpi_valores.findFirst({
-    where: {
-      kpi_id: kpi.id,
-      periodo,
-      entidad_id: entidadId || null
-    }
-  });
-
-  if (existente) {
-    // Actualizar valor existente
-    await prisma.kpi_valores.update({
-      where: { id: existente.id },
-      data: {
-        valor,
-        metadata
-      }
-    });
-  } else {
-    // Crear nuevo registro
-    await prisma.kpi_valores.create({
-      data: {
-        kpi_id: kpi.id,
-        valor,
-        periodo,
-        entidad_id: entidadId,
-        metadata
-      }
-    });
-  }
-}
-
-/**
- * Calcular y almacenar todos los KPIs
- */
-export async function calcularTodosLosKPIs(
-  modeloNegocioId?: number,
-  fechaInicio?: Date,
-  fechaFin?: Date
-): Promise<{ success: boolean; kpis: any[]; error?: string }> {
-  try {
-    const periodo = fechaFin || new Date();
-    const kpis: any[] = [];
-
-    console.log(`📊 Calculando KPIs para periodo: ${periodo.toISOString()}`);
-
-    // KPI 1: Tasa de Conversión
-    const tasaConversion = await calcularTasaConversion(modeloNegocioId, fechaInicio, fechaFin);
-    await almacenarKPI(KPI_CODES.TASA_CONVERSION, tasaConversion, periodo, modeloNegocioId);
-    kpis.push({ codigo: KPI_CODES.TASA_CONVERSION, valor: tasaConversion });
-
-    // KPI 2: Tiempo Promedio de Venta
-    const tiempoVenta = await calcularTiempoPromedioVenta(modeloNegocioId, fechaInicio, fechaFin);
-    await almacenarKPI(KPI_CODES.TIEMPO_PROMEDIO_VENTA, tiempoVenta, periodo, modeloNegocioId);
-    kpis.push({ codigo: KPI_CODES.TIEMPO_PROMEDIO_VENTA, valor: tiempoVenta });
-
-    // KPI 3: Valorización Total
-    const valorizacion = await calcularValorizacionTotal(modeloNegocioId, fechaInicio, fechaFin);
-    await almacenarKPI(KPI_CODES.VALORIZACION_TOTAL, valorizacion, periodo, modeloNegocioId);
-    kpis.push({ codigo: KPI_CODES.VALORIZACION_TOTAL, valor: valorizacion });
-
-    // KPI 4: Comisión Total
-    const comisionTotal = await calcularComisionTotal(modeloNegocioId, fechaInicio, fechaFin);
-    await almacenarKPI(KPI_CODES.COMISION_TOTAL, comisionTotal, periodo, modeloNegocioId);
-    kpis.push({ codigo: KPI_CODES.COMISION_TOTAL, valor: comisionTotal });
-
-    // KPI 5: Comisión Neta
-    const comisionNeta = await calcularComisionNeta(modeloNegocioId, fechaInicio, fechaFin);
-    await almacenarKPI(KPI_CODES.COMISION_NETA, comisionNeta, periodo, modeloNegocioId);
-    kpis.push({ codigo: KPI_CODES.COMISION_NETA, valor: comisionNeta });
-
-    // KPI 6: Índice de Stock
-    const indiceStock = await calcularIndiceStock(modeloNegocioId);
-    await almacenarKPI(KPI_CODES.INDICE_STOCK, indiceStock, periodo, modeloNegocioId);
-    kpis.push({ codigo: KPI_CODES.INDICE_STOCK, valor: indiceStock });
-
-    // KPI 7: Eficiencia de Corredor (solo si hay corredores)
-    const eficienciaCorredor = await calcularEficienciaCorredor(undefined, fechaInicio, fechaFin);
-    await almacenarKPI(KPI_CODES.EFICIENCIA_CORREDOR, eficienciaCorredor, periodo, modeloNegocioId);
-    kpis.push({ codigo: KPI_CODES.EFICIENCIA_CORREDOR, valor: eficienciaCorredor });
-
-    // KPI 8: Tasa de Canje Exitoso
-    const tasaCanje = await calcularTasaCanjeExitoso(modeloNegocioId, fechaInicio, fechaFin);
-    await almacenarKPI(KPI_CODES.TASA_CANJE_EXITOSO, tasaCanje, periodo, modeloNegocioId);
-    kpis.push({ codigo: KPI_CODES.TASA_CANJE_EXITOSO, valor: tasaCanje });
-
-    // KPI 9: ROI por Modelo (solo si se especifica modelo)
-    if (modeloNegocioId) {
-      const roi = await calcularROIModelo(modeloNegocioId, fechaInicio, fechaFin);
-      await almacenarKPI(KPI_CODES.ROI_MODELO, roi, periodo, modeloNegocioId);
-      kpis.push({ codigo: KPI_CODES.ROI_MODELO, valor: roi });
-    }
-
-    console.log(`✅ KPIs calculados exitosamente: ${kpis.length}`);
-
-    return {
-      success: true,
-      kpis
-    };
-
-  } catch (error) {
-    console.error('❌ Error al calcular KPIs:', error);
-    return {
-      success: false,
-      kpis: [],
-      error: error.message
-    };
-  }
-}
-
-// =====================================================
-// FUNCIONES DE COMPARACIÓN
-// =====================================================
-
-/**
- * Comparar KPI con periodo anterior
- */
-export async function compararKPI(
-  codigoKPI: string,
-  periodoActual: Date,
-  modeloNegocioId?: number
-): Promise<KPIComparison | null> {
-  try {
-    // Obtener ID del KPI
-    const kpi = await prisma.dom_parametros.findFirst({
-      where: {
-        categoria: { codigo: 'KPI_TIPO' },
-        codigo: codigoKPI
+  /**
+   * Iniciar scheduler para cálculos automáticos
+   * Ejecuta cada día a las 2 AM
+   */
+  startScheduler() {
+    cron.schedule('0 2 * * *', async () => {
+      console.log('🔄 Running scheduled KPI calculations...');
+      try {
+        await this.calculateAllKPIsForAllEntities();
+        console.log('✅ Scheduled KPI calculations completed');
+      } catch (error) {
+        console.error('❌ Error in scheduled KPI calculations:', error);
       }
     });
 
-    if (!kpi) return null;
+    console.log('📅 KPI calculation scheduler started (daily at 2 AM)');
+  }
 
-    // Calcular periodo anterior (mes anterior)
-    const periodoAnterior = new Date(periodoActual);
-    periodoAnterior.setMonth(periodoAnterior.getMonth() - 1);
+  // =====================================================
+  // CÁLCULO DE KPIs INDIVIDUALES
+  // =====================================================
 
-    // Obtener valores
-    const [valorActual, valorAnterior] = await Promise.all([
-      prisma.kpi_valores.findFirst({
-        where: {
-          kpi_id: kpi.id,
-          periodo: periodoActual,
-          entidad_id: modeloNegocioId || null
-        }
-      }),
-      prisma.kpi_valores.findFirst({
-        where: {
-          kpi_id: kpi.id,
-          periodo: periodoAnterior,
-          entidad_id: modeloNegocioId || null
-        }
-      })
-    ]);
+  /**
+   * 1. TASA DE CONVERSIÓN
+   * Fórmula: (Propiedades Vendidas / Propiedades Totales) × 100
+   */
+  async calculateConversionRate(
+    entity: EntityParams,
+    period: PeriodParams
+  ): Promise<KPIResult> {
+    const where: any = {
+      fecha_creacion: {
+        gte: period.startDate,
+        lte: period.endDate
+      }
+    };
 
-    const actual = valorActual?.valor || 0;
-    const anterior = valorAnterior?.valor || 0;
-    const variacion = actual - anterior;
-    const porcentajeVariacion = anterior !== 0 
-      ? Number(((variacion / anterior) * 100).toFixed(2))
+    // Filtrar por entidad
+    if (entity.entityType === EntityType.BUSINESS_MODEL) {
+      where.modelo_negocio_id = entity.entityId;
+    }
+
+    // Total de propiedades en el período
+    const totalProperties = await prisma.propiedades.count({ where });
+
+    // Propiedades vendidas (estado = 3, según dominio)
+    const soldProperties = await prisma.propiedades.count({
+      where: {
+        ...where,
+        estado: 3 // Vendida
+      }
+    });
+
+    const value = totalProperties > 0 
+      ? (soldProperties / totalProperties) * 100 
       : 0;
 
-    return {
-      actual,
-      anterior,
-      variacion,
-      porcentaje_variacion: porcentajeVariacion
+    return await this.formatKPIResult(
+      KPICode.CONVERSION_RATE,
+      value,
+      entity,
+      period,
+      {
+        total_properties: totalProperties,
+        sold_properties: soldProperties
+      }
+    );
+  }
+
+  /**
+   * 2. TIEMPO PROMEDIO DE VENTA
+   * Fórmula: Promedio de días desde publicación hasta venta
+   */
+  async calculateAverageSaleTime(
+    entity: EntityParams,
+    period: PeriodParams
+  ): Promise<KPIResult> {
+    const where: any = {
+      estado: 3, // Vendida
+      fecha_venta: {
+        gte: period.startDate,
+        lte: period.endDate
+      }
     };
 
-  } catch (error) {
-    console.error('Error al comparar KPI:', error);
-    return null;
-  }
-}
+    if (entity.entityType === EntityType.BUSINESS_MODEL) {
+      where.modelo_negocio_id = entity.entityId;
+    }
 
-/**
- * Obtener histórico de un KPI
- */
-export async function obtenerHistoricoKPI(
-  codigoKPI: string,
-  meses: number = 6,
-  modeloNegocioId?: number
-): Promise<any[]> {
-  try {
-    // Obtener ID del KPI
-    const kpi = await prisma.dom_parametros.findFirst({
-      where: {
-        categoria: { codigo: 'KPI_TIPO' },
-        codigo: codigoKPI
+    const soldProperties = await prisma.propiedades.findMany({
+      where,
+      select: {
+        fecha_creacion: true,
+        fecha_venta: true
       }
     });
 
-    if (!kpi) return [];
+    if (soldProperties.length === 0) {
+      return await this.formatKPIResult(
+        KPICode.AVG_SALE_TIME,
+        0,
+        entity,
+        period,
+        { count: 0 }
+      );
+    }
 
-    // Calcular fecha de inicio
-    const fechaInicio = new Date();
-    fechaInicio.setMonth(fechaInicio.getMonth() - meses);
+    // Calcular días promedio
+    const totalDays = soldProperties.reduce((sum, prop) => {
+      if (prop.fecha_venta && prop.fecha_creacion) {
+        const days = Math.floor(
+          (prop.fecha_venta.getTime() - prop.fecha_creacion.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        return sum + days;
+      }
+      return sum;
+    }, 0);
 
-    // Obtener valores históricos
-    const valores = await prisma.kpi_valores.findMany({
-      where: {
-        kpi_id: kpi.id,
-        periodo: {
-          gte: fechaInicio
-        },
-        entidad_id: modeloNegocioId || null
+    const avgDays = totalDays / soldProperties.length;
+
+    return await this.formatKPIResult(
+      KPICode.AVG_SALE_TIME,
+      Math.round(avgDays),
+      entity,
+      period,
+      {
+        count: soldProperties.length,
+        total_days: totalDays
+      }
+    );
+  }
+
+  /**
+   * 3. VALORIZACIÓN TOTAL
+   * Fórmula: Suma del precio de todas las propiedades activas
+   */
+  async calculateTotalValuation(
+    entity: EntityParams,
+    period: PeriodParams
+  ): Promise<KPIResult> {
+    const where: any = {
+      estado: { in: [1, 2] }, // Disponible o Reservada
+      fecha_creacion: {
+        lte: period.endDate
+      }
+    };
+
+    if (entity.entityType === EntityType.BUSINESS_MODEL) {
+      where.modelo_negocio_id = entity.entityId;
+    }
+
+    const result = await prisma.propiedades.aggregate({
+      where,
+      _sum: {
+        precio_venta: true
       },
-      orderBy: {
-        periodo: 'asc'
+      _count: true
+    });
+
+    const value = result._sum.precio_venta 
+      ? parseFloat(result._sum.precio_venta.toString()) 
+      : 0;
+
+    return await this.formatKPIResult(
+      KPICode.TOTAL_VALUATION,
+      value,
+      entity,
+      period,
+      {
+        count: result._count,
+        currency: 'CLP'
+      }
+    );
+  }
+
+  /**
+   * 4. COMISIÓN TOTAL GENERADA
+   * Fórmula: Suma de todas las comisiones de propiedades vendidas en el período
+   */
+  async calculateTotalCommission(
+    entity: EntityParams,
+    period: PeriodParams
+  ): Promise<KPIResult> {
+    const where: any = {
+      estado: 3, // Vendida
+      fecha_venta: {
+        gte: period.startDate,
+        lte: period.endDate
+      }
+    };
+
+    if (entity.entityType === EntityType.BUSINESS_MODEL) {
+      where.modelo_negocio_id = entity.entityId;
+    }
+
+    const soldProperties = await prisma.propiedades.findMany({
+      where,
+      select: {
+        precio_venta: true,
+        porcentaje_comision: true
       }
     });
 
-    return valores.map(v => ({
-      periodo: v.periodo,
-      valor: v.valor,
-      metadata: v.metadata
-    }));
+    // Calcular comisión total
+    const totalCommission = soldProperties.reduce((sum, prop) => {
+      if (prop.precio_venta && prop.porcentaje_comision) {
+        const commission = parseFloat(prop.precio_venta.toString()) * 
+                          (parseFloat(prop.porcentaje_comision.toString()) / 100);
+        return sum + commission;
+      }
+      return sum;
+    }, 0);
 
-  } catch (error) {
-    console.error('Error al obtener histórico KPI:', error);
-    return [];
+    return await this.formatKPIResult(
+      KPICode.TOTAL_COMMISSION,
+      totalCommission,
+      entity,
+      period,
+      {
+        properties_count: soldProperties.length,
+        currency: 'CLP'
+      }
+    );
   }
-}
 
-// =====================================================
-// SCHEDULER - ACTUALIZACIÓN AUTOMÁTICA
-// =====================================================
+  /**
+   * 5. COMISIÓN NETA AGENCIA
+   * Fórmula: Comisión Total - Comisiones pagadas a corredores externos
+   */
+  async calculateNetCommission(
+    entity: EntityParams,
+    period: PeriodParams
+  ): Promise<KPIResult> {
+    // Primero obtener comisión total
+    const totalCommissionResult = await this.calculateTotalCommission(entity, period);
+    const totalCommission = totalCommissionResult.value;
 
-/**
- * Iniciar cálculo automático de KPIs
- * Se ejecuta diariamente a las 02:00 AM
- */
-export function iniciarSchedulerKPIs(): void {
-  console.log('🚀 Iniciando scheduler de KPIs...');
-
-  // Ejecutar diariamente a las 2 AM
-  cron.schedule('0 2 * * *', async () => {
-    console.log('⏰ Ejecutando cálculo automático de KPIs...');
-    
-    try {
-      // Calcular KPIs generales
-      await calcularTodosLosKPIs();
-
-      // Calcular KPIs por cada modelo de negocio
-      const modelos = await prisma.modelos_negocio.findMany({
-        where: {
-          activo: true
+    // Obtener comisiones pagadas a corredores externos
+    const where: any = {
+      propiedades: {
+        estado: 3,
+        fecha_venta: {
+          gte: period.startDate,
+          lte: period.endDate
         }
-      });
+      }
+    };
 
-      for (const modelo of modelos) {
-        await calcularTodosLosKPIs(modelo.id);
+    if (entity.entityType === EntityType.BUSINESS_MODEL) {
+      where.propiedades = {
+        ...where.propiedades,
+        modelo_negocio_id: entity.entityId
+      };
+    }
+
+    const publications = await prisma.publicaciones.findMany({
+      where,
+      select: {
+        comision_corredor_monto: true,
+        propiedades: {
+          select: {
+            precio_venta: true
+          }
+        }
+      }
+    });
+
+    const brokerCommissions = publications.reduce((sum, pub) => {
+      if (pub.comision_corredor_monto) {
+        return sum + parseFloat(pub.comision_corredor_monto.toString());
+      }
+      return sum;
+    }, 0);
+
+    const netCommission = totalCommission - brokerCommissions;
+
+    return await this.formatKPIResult(
+      KPICode.NET_COMMISSION,
+      netCommission,
+      entity,
+      period,
+      {
+        total_commission: totalCommission,
+        broker_commissions: brokerCommissions,
+        currency: 'CLP'
+      }
+    );
+  }
+
+  /**
+   * 6. ÍNDICE DE STOCK
+   * Fórmula: (Stock Actual / Stock Objetivo) × 100
+   */
+  async calculateStockIndex(
+    entity: EntityParams,
+    period: PeriodParams
+  ): Promise<KPIResult> {
+    const where: any = {
+      estado: { in: [1, 2] } // Disponible o Reservada
+    };
+
+    if (entity.entityType === EntityType.BUSINESS_MODEL) {
+      where.modelo_negocio_id = entity.entityId;
+    }
+
+    const currentStock = await prisma.propiedades.count({ where });
+
+    // Obtener stock objetivo del modelo de negocio
+    let targetStock = 100; // Valor por defecto
+
+    if (entity.entityType === EntityType.BUSINESS_MODEL) {
+      const model = await prisma.modelos_negocio.findUnique({
+        where: { id: entity.entityId }
+      });
+      
+      // Intentar extraer stock objetivo del metadata
+      if (model?.metadata && typeof model.metadata === 'object') {
+        const metadata = model.metadata as any;
+        targetStock = metadata.stock_objetivo || targetStock;
+      }
+    }
+
+    const value = targetStock > 0 
+      ? (currentStock / targetStock) * 100 
+      : 0;
+
+    return await this.formatKPIResult(
+      KPICode.STOCK_INDEX,
+      value,
+      entity,
+      period,
+      {
+        current_stock: currentStock,
+        target_stock: targetStock
+      }
+    );
+  }
+
+  /**
+   * 7. EFICIENCIA DE CORREDOR
+   * Fórmula: (Ventas del Corredor / Propiedades Asignadas) × 100
+   */
+  async calculateBrokerEfficiency(
+    entity: EntityParams,
+    period: PeriodParams
+  ): Promise<KPIResult> {
+    if (entity.entityType !== EntityType.BROKER) {
+      return await this.formatKPIResult(
+        KPICode.BROKER_EFFICIENCY,
+        0,
+        entity,
+        period,
+        { error: 'Only applicable to broker entities' }
+      );
+    }
+
+    // Propiedades asignadas al corredor
+    const assignedProperties = await prisma.publicaciones.count({
+      where: {
+        corredor_id: entity.entityId,
+        fecha_publicacion: {
+          gte: period.startDate,
+          lte: period.endDate
+        }
+      }
+    });
+
+    // Ventas realizadas por el corredor
+    const salesByBroker = await prisma.publicaciones.count({
+      where: {
+        corredor_id: entity.entityId,
+        propiedades: {
+          estado: 3, // Vendida
+          fecha_venta: {
+            gte: period.startDate,
+            lte: period.endDate
+          }
+        }
+      }
+    });
+
+    const value = assignedProperties > 0 
+      ? (salesByBroker / assignedProperties) * 100 
+      : 0;
+
+    return await this.formatKPIResult(
+      KPICode.BROKER_EFFICIENCY,
+      value,
+      entity,
+      period,
+      {
+        assigned_properties: assignedProperties,
+        sales: salesByBroker
+      }
+    );
+  }
+
+  /**
+   * 8. TASA DE CANJE EXITOSO
+   * Fórmula: (Canjes Finalizados / Canjes Iniciados) × 100
+   */
+  async calculateTradeInSuccessRate(
+    entity: EntityParams,
+    period: PeriodParams
+  ): Promise<KPIResult> {
+    const where: any = {
+      fecha_inicio: {
+        gte: period.startDate,
+        lte: period.endDate
+      }
+    };
+
+    if (entity.entityType === EntityType.BUSINESS_MODEL) {
+      where.propiedades_canjes_propiedad_entregada_idTopropiedades = {
+        modelo_negocio_id: entity.entityId
+      };
+    }
+
+    // Total de canjes iniciados
+    const totalTradeIns = await prisma.canjes.count({ where });
+
+    // Canjes finalizados exitosamente (estado = 4 según dominio)
+    const successfulTradeIns = await prisma.canjes.count({
+      where: {
+        ...where,
+        estado: 4 // Finalizado
+      }
+    });
+
+    const value = totalTradeIns > 0 
+      ? (successfulTradeIns / totalTradeIns) * 100 
+      : 0;
+
+    return await this.formatKPIResult(
+      KPICode.TRADEIN_SUCCESS_RATE,
+      value,
+      entity,
+      period,
+      {
+        total_tradeins: totalTradeIns,
+        successful: successfulTradeIns
+      }
+    );
+  }
+
+  /**
+   * 9. ROI POR MODELO
+   * Fórmula: ((Ingresos - Costos) / Costos) × 100
+   */
+  async calculateROI(
+    entity: EntityParams,
+    period: PeriodParams
+  ): Promise<KPIResult> {
+    if (entity.entityType !== EntityType.BUSINESS_MODEL) {
+      return await this.formatKPIResult(
+        KPICode.ROI,
+        0,
+        entity,
+        period,
+        { error: 'Only applicable to business model entities' }
+      );
+    }
+
+    // Ingresos: Comisión neta del período
+    const netCommissionResult = await this.calculateNetCommission(entity, period);
+    const revenue = netCommissionResult.value;
+
+    // Costos: Extraer del metadata del modelo o usar estimación
+    const model = await prisma.modelos_negocio.findUnique({
+      where: { id: entity.entityId }
+    });
+
+    let costs = 0;
+    if (model?.metadata && typeof model.metadata === 'object') {
+      const metadata = model.metadata as any;
+      costs = metadata.costos_operacionales || 0;
+    }
+
+    // Si no hay costos registrados, usar 30% de los ingresos como estimación
+    if (costs === 0) {
+      costs = revenue * 0.3;
+    }
+
+    const value = costs > 0 
+      ? ((revenue - costs) / costs) * 100 
+      : 0;
+
+    return await this.formatKPIResult(
+      KPICode.ROI,
+      value,
+      entity,
+      period,
+      {
+        revenue,
+        costs,
+        profit: revenue - costs,
+        currency: 'CLP'
+      }
+    );
+  }
+
+  // =====================================================
+  // FUNCIONES DE CÁLCULO MASIVO
+  // =====================================================
+
+  /**
+   * Calcular todos los KPIs para una entidad en un período
+   */
+  async calculateAllKPIs(
+    entity: EntityParams,
+    period: PeriodParams
+  ): Promise<KPIResult[]> {
+    const results: KPIResult[] = [];
+
+    try {
+      // KPIs aplicables a todos
+      results.push(await this.calculateConversionRate(entity, period));
+      results.push(await this.calculateAverageSaleTime(entity, period));
+      results.push(await this.calculateTotalValuation(entity, period));
+      results.push(await this.calculateTotalCommission(entity, period));
+      results.push(await this.calculateNetCommission(entity, period));
+      results.push(await this.calculateStockIndex(entity, period));
+      results.push(await this.calculateTradeInSuccessRate(entity, period));
+
+      // KPIs específicos
+      if (entity.entityType === EntityType.BROKER) {
+        results.push(await this.calculateBrokerEfficiency(entity, period));
       }
 
-      console.log('✅ Cálculo automático de KPIs completado');
+      if (entity.entityType === EntityType.BUSINESS_MODEL) {
+        results.push(await this.calculateROI(entity, period));
+      }
 
     } catch (error) {
-      console.error('❌ Error en cálculo automático de KPIs:', error);
+      console.error('Error calculating KPIs:', error);
+      throw error;
     }
-  });
 
-  console.log('✅ Scheduler de KPIs iniciado (se ejecutará diariamente a las 02:00)');
-}
+    return results;
+  }
 
-// =====================================================
-// FUNCIONES DE ALERTA
-// =====================================================
+  /**
+   * Calcular KPIs para todos los modelos de negocio
+   */
+  async calculateAllKPIsForAllEntities(): Promise<void> {
+    try {
+      // Obtener período actual (mes actual)
+      const now = new Date();
+      const period: PeriodParams = {
+        startDate: new Date(now.getFullYear(), now.getMonth(), 1),
+        endDate: new Date(now.getFullYear(), now.getMonth() + 1, 0),
+        periodType: PeriodType.MONTHLY
+      };
 
-/**
- * Verificar umbrales de KPIs y generar alertas
- */
-export async function verificarUmbralesKPIs(): Promise<void> {
-  try {
-    // Obtener umbrales configurados
-    const umbrales = await prisma.kpi_umbrales.findMany({
+      // Calcular para todos los modelos de negocio
+      const models = await prisma.modelos_negocio.findMany({
+        where: { activo: true }
+      });
+
+      for (const model of models) {
+        const entity: EntityParams = {
+          entityType: EntityType.BUSINESS_MODEL,
+          entityId: model.id
+        };
+
+        await this.calculateAllKPIs(entity, period);
+      }
+
+      // Calcular para todos los corredores
+      const brokers = await prisma.usuarios.findMany({
+        where: { rol_id: 3, activo: true } // Rol corredor
+      });
+
+      for (const broker of brokers) {
+        const entity: EntityParams = {
+          entityType: EntityType.BROKER,
+          entityId: broker.id
+        };
+
+        await this.calculateAllKPIs(entity, period);
+      }
+
+      console.log('✅ KPIs calculated for all entities');
+    } catch (error) {
+      console.error('❌ Error in calculateAllKPIsForAllEntities:', error);
+      throw error;
+    }
+  }
+
+  // =====================================================
+  // FUNCIONES AUXILIARES
+  // =====================================================
+
+  /**
+   * Formatear resultado de KPI y almacenar en base de datos
+   */
+  private async formatKPIResult(
+    kpiCode: string,
+    value: number,
+    entity: EntityParams,
+    period: PeriodParams,
+    metadata?: any
+  ): Promise<KPIResult> {
+    const config = this.kpiConfigs.get(kpiCode);
+    
+    if (!config) {
+      throw new Error(`KPI configuration not found for code: ${kpiCode}`);
+    }
+
+    // Obtener valor del período anterior para comparación
+    const previousPeriod = this.getPreviousPeriod(period);
+    const previousValue = await this.getKPIValue(
+      config.id,
+      entity,
+      previousPeriod
+    );
+
+    // Calcular cambio porcentual
+    let percentageChange: number | undefined;
+    let trend: 'up' | 'down' | 'stable' = 'stable';
+
+    if (previousValue !== null && previousValue !== 0) {
+      percentageChange = ((value - previousValue) / previousValue) * 100;
+      if (Math.abs(percentageChange) < 1) {
+        trend = 'stable';
+      } else if (percentageChange > 0) {
+        trend = 'up';
+      } else {
+        trend = 'down';
+      }
+    }
+
+    // Verificar si está dentro de umbrales
+    const isWithinThreshold = this.checkThreshold(value, config);
+
+    // Almacenar en base de datos
+    await this.saveKPIValue({
+      kpi_id: config.id,
+      entidad_tipo_id: entity.entityType,
+      entidad_id: entity.entityId,
+      periodo_tipo_id: period.periodType,
+      fecha_inicio: period.startDate,
+      fecha_fin: period.endDate,
+      valor: value,
+      comparacion_periodo_anterior: previousValue,
+      porcentaje_cambio: percentageChange || null,
+      metadata: metadata ? JSON.stringify(metadata) : null
+    });
+
+    // Generar alerta si está fuera de umbrales
+    if (!isWithinThreshold) {
+      await this.generateKPIAlert(config, value, entity, period);
+    }
+
+    return {
+      code: kpiCode,
+      value,
+      previousValue: previousValue || undefined,
+      percentageChange,
+      trend,
+      isWithinThreshold,
+      metadata
+    };
+  }
+
+  /**
+   * Verificar si el valor está dentro de los umbrales
+   */
+  private checkThreshold(value: number, config: KPIConfig): boolean {
+    if (config.minThreshold !== undefined && value < config.minThreshold) {
+      return false;
+    }
+    if (config.maxThreshold !== undefined && value > config.maxThreshold) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Obtener período anterior
+   */
+  private getPreviousPeriod(period: PeriodParams): PeriodParams {
+    const duration = period.endDate.getTime() - period.startDate.getTime();
+    
+    return {
+      startDate: new Date(period.startDate.getTime() - duration),
+      endDate: new Date(period.endDate.getTime() - duration),
+      periodType: period.periodType
+    };
+  }
+
+  /**
+   * Obtener valor de KPI del período anterior
+   */
+  private async getKPIValue(
+    kpiId: number,
+    entity: EntityParams,
+    period: PeriodParams
+  ): Promise<number | null> {
+    const value = await prisma.kpi_valores.findFirst({
       where: {
-        activo: true
+        kpi_id: kpiId,
+        entidad_tipo_id: entity.entityType,
+        entidad_id: entity.entityId,
+        fecha_inicio: period.startDate,
+        fecha_fin: period.endDate
       },
-      include: {
-        kpi: true
+      orderBy: {
+        fecha_calculo: 'desc'
       }
     });
 
-    for (const umbral of umbrales) {
-      // Obtener último valor del KPI
-      const ultimoValor = await prisma.kpi_valores.findFirst({
-        where: {
-          kpi_id: umbral.kpi_id,
-          entidad_id: umbral.entidad_id
-        },
-        orderBy: {
-          periodo: 'desc'
+    return value ? parseFloat(value.valor.toString()) : null;
+  }
+
+  /**
+   * Guardar valor de KPI en base de datos
+   */
+  private async saveKPIValue(data: any): Promise<void> {
+    try {
+      await prisma.kpi_valores.create({
+        data: {
+          ...data,
+          valor: new Prisma.Decimal(data.valor),
+          comparacion_periodo_anterior: data.comparacion_periodo_anterior 
+            ? new Prisma.Decimal(data.comparacion_periodo_anterior)
+            : null,
+          porcentaje_cambio: data.porcentaje_cambio
+            ? new Prisma.Decimal(data.porcentaje_cambio)
+            : null
+        }
+      });
+    } catch (error) {
+      console.error('Error saving KPI value:', error);
+      // No lanzar error para no interrumpir el cálculo de otros KPIs
+    }
+  }
+
+  /**
+   * Generar alerta cuando KPI está fuera de umbrales
+   */
+  private async generateKPIAlert(
+    config: KPIConfig,
+    value: number,
+    entity: EntityParams,
+    period: PeriodParams
+  ): Promise<void> {
+    try {
+      let level = 1; // Temprana por defecto
+      let message = `KPI ${config.name} fuera de umbral: ${value.toFixed(2)}`;
+
+      // Determinar nivel de alerta
+      if (config.minThreshold && value < config.minThreshold * 0.5) {
+        level = 3; // Vencida
+        message += ` (muy por debajo del mínimo: ${config.minThreshold})`;
+      } else if (config.minThreshold && value < config.minThreshold * 0.8) {
+        level = 2; // En tiempo
+        message += ` (por debajo del mínimo: ${config.minThreshold})`;
+      }
+
+      await prisma.alertas.create({
+        data: {
+          tipo_alerta_id: 3, // KPI según dominio
+          categoria_alerta_id: level,
+          nivel_prioridad_id: level,
+          modulo_id: 7, // Módulo de seguimiento de desempeño
+          entidad_tipo_id: entity.entityType,
+          entidad_id: entity.entityId,
+          titulo: `Alerta KPI: ${config.name}`,
+          mensaje: message,
+          estado_alerta_id: 1, // Activa
+          metadata: JSON.stringify({
+            kpi_code: config.code,
+            value,
+            min_threshold: config.minThreshold,
+            max_threshold: config.maxThreshold,
+            period_start: period.startDate,
+            period_end: period.endDate
+          })
         }
       });
 
-      if (!ultimoValor) continue;
+      console.log(`⚠️ Alert generated for KPI ${config.code}: ${message}`);
+    } catch (error) {
+      console.error('Error generating KPI alert:', error);
+    }
+  }
 
-      // Verificar si se superó el umbral
-      const superaMinimo = umbral.valor_minimo !== null && ultimoValor.valor < umbral.valor_minimo;
-      const superaMaximo = umbral.valor_maximo !== null && ultimoValor.valor > umbral.valor_maximo;
+  // =====================================================
+  // FUNCIONES DE CONSULTA
+  // =====================================================
 
-      if (superaMinimo || superaMaximo) {
-        // Generar alerta
-        const tipoAlertaId = await prisma.dom_parametros.findFirst({
-          where: {
-            categoria: { codigo: 'TIPO_ALERTA' },
-            codigo: 'KPI_FUERA_UMBRAL'
-          }
-        });
-
-        if (tipoAlertaId) {
-          await prisma.alertas.create({
-            data: {
-              tipo_alerta_id: tipoAlertaId.id,
-              prioridad_id: await getPrioridadAlerta('ALTA'),
-              entidad_tipo_id: await getEntidadTipoId('KPI'),
-              entidad_id: umbral.kpi_id,
-              titulo: `KPI fuera de umbral: ${umbral.kpi.valor_texto}`,
-              mensaje: `El KPI ${umbral.kpi.valor_texto} tiene un valor de ${ultimoValor.valor}, ${superaMinimo ? 'por debajo' : 'por encima'} del umbral establecido`,
-              metadata: {
-                kpi_codigo: umbral.kpi.codigo,
-                valor_actual: ultimoValor.valor,
-                valor_minimo: umbral.valor_minimo,
-                valor_maximo: umbral.valor_maximo
-              }
-            }
-          });
-        }
+  /**
+   * Obtener KPIs consolidados para una entidad
+   */
+  async getConsolidatedKPIs(
+    entity: EntityParams,
+    period: PeriodParams
+  ): Promise<any> {
+    const kpiValues = await prisma.kpi_valores.findMany({
+      where: {
+        entidad_tipo_id: entity.entityType,
+        entidad_id: entity.entityId,
+        fecha_inicio: period.startDate,
+        fecha_fin: period.endDate
+      },
+      include: {
+        kpis: true
+      },
+      orderBy: {
+        fecha_calculo: 'desc'
       }
+    });
+
+    return kpiValues.map(kv => ({
+      code: kv.kpis.codigo,
+      name: kv.kpis.nombre,
+      value: parseFloat(kv.valor.toString()),
+      previousValue: kv.comparacion_periodo_anterior 
+        ? parseFloat(kv.comparacion_periodo_anterior.toString()) 
+        : null,
+      percentageChange: kv.porcentaje_cambio 
+        ? parseFloat(kv.porcentaje_cambio.toString()) 
+        : null,
+      calculatedAt: kv.fecha_calculo
+    }));
+  }
+
+  /**
+   * Obtener histórico de un KPI específico
+   */
+  async getKPIHistory(
+    kpiCode: string,
+    entity: EntityParams,
+    limit: number = 12
+  ): Promise<any[]> {
+    const config = this.kpiConfigs.get(kpiCode);
+    
+    if (!config) {
+      throw new Error(`KPI not found: ${kpiCode}`);
     }
 
-  } catch (error) {
-    console.error('Error al verificar umbrales de KPIs:', error);
+    const history = await prisma.kpi_valores.findMany({
+      where: {
+        kpi_id: config.id,
+        entidad_tipo_id: entity.entityType,
+        entidad_id: entity.entityId
+      },
+      orderBy: {
+        fecha_fin: 'desc'
+      },
+      take: limit
+    });
+
+    return history.map(h => ({
+      period_start: h.fecha_inicio,
+      period_end: h.fecha_fin,
+      value: parseFloat(h.valor.toString()),
+      calculated_at: h.fecha_calculo
+    })).reverse();
+  }
+
+  /**
+   * Obtener tendencia de un KPI
+   */
+  async getKPITrend(
+    kpiCode: string,
+    entity: EntityParams,
+    periods: number = 6
+  ): Promise<any> {
+    const history = await this.getKPIHistory(kpiCode, entity, periods);
+
+    if (history.length < 2) {
+      return {
+        trend: 'insufficient_data',
+        direction: 'stable',
+        average: 0
+      };
+    }
+
+    const values = history.map(h => h.value);
+    const average = values.reduce((a, b) => a + b, 0) / values.length;
+
+    // Calcular tendencia simple (primer valor vs último valor)
+    const firstValue = values[0];
+    const lastValue = values[values.length - 1];
+    const change = lastValue - firstValue;
+    const percentageChange = firstValue !== 0 ? (change / firstValue) * 100 : 0;
+
+    let direction: 'up' | 'down' | 'stable' = 'stable';
+    if (Math.abs(percentageChange) > 5) {
+      direction = percentageChange > 0 ? 'up' : 'down';
+    }
+
+    return {
+      trend: 'calculated',
+      direction,
+      average,
+      first_value: firstValue,
+      last_value: lastValue,
+      change,
+      percentage_change: percentageChange,
+      data_points: history.length
+    };
   }
 }
 
 // =====================================================
-// FUNCIONES AUXILIARES
+// EXPORTAR INSTANCIA SINGLETON
 // =====================================================
 
-async function getPrioridadAlerta(codigo: string): Promise<number> {
-  const prioridad = await prisma.dom_parametros.findFirst({
-    where: {
-      categoria: { codigo: 'PRIORIDAD_ALERTA' },
-      codigo
-    }
-  });
-  return prioridad?.id || 0;
-}
-
-async function getEntidadTipoId(codigo: string): Promise<number> {
-  const entidad = await prisma.dom_parametros.findFirst({
-    where: {
-      categoria: { codigo: 'ENTIDAD_TIPO' },
-      codigo
-    }
-  });
-  return entidad?.id || 0;
-}
-
-// Exportar funciones individuales para uso directo
-export {
-  calcularTasaConversion,
-  calcularTiempoPromedioVenta,
-  calcularValorizacionTotal,
-  calcularComisionTotal,
-  calcularComisionNeta,
-  calcularIndiceStock,
-  calcularEficienciaCorredor,
-  calcularTasaCanjeExitoso,
-  calcularROIModelo
-};
+export default KPIsService.getInstance();

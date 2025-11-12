@@ -105,6 +105,9 @@ frontend/
 - `npm run build` - Crea build de producción
 - `npm run preview` - Preview del build de producción
 - `npm run lint` - Ejecuta ESLint
+- `npm run test` - Ejecuta tests con Vitest
+- `npm run test:ui` - Ejecuta tests con interfaz gráfica
+- `npm run test:coverage` - Ejecuta tests con reporte de cobertura
 
 ## Convenciones de Código
 
@@ -113,6 +116,73 @@ frontend/
 - Usar path aliases (`@/`) para imports
 - Seguir estructura de carpetas establecida
 - Usar Material-UI components cuando sea posible
+
+## Testing
+
+El proyecto usa Vitest y React Testing Library para testing.
+
+### Ejecutar Tests
+
+```bash
+# Ejecutar todos los tests
+npm run test
+
+# Ejecutar tests con UI
+npm run test:ui
+
+# Generar reporte de cobertura
+npm run test:coverage
+```
+
+### Estructura de Tests
+
+```
+src/
+├── components/
+│   └── common/
+│       └── __tests__/
+│           ├── LoadingSpinner.test.tsx
+│           ├── EmptyState.test.tsx
+│           ├── PageTitle.test.tsx
+│           └── CustomCard.test.tsx
+├── redux/
+│   └── __tests__/
+│       ├── store.test.ts
+│       └── hooks.test.tsx
+└── test/
+    ├── setup.ts
+    └── test-utils.tsx
+```
+
+### Cobertura de Tests
+
+Objetivo: >70% de cobertura en:
+- Lines
+- Functions
+- Branches
+- Statements
+
+## Optimizaciones Implementadas
+
+### Performance
+- ✅ Code splitting con React.lazy en rutas
+- ✅ Componentes optimizados con React.memo
+- ✅ Bundle size optimizado con chunking manual
+- ✅ Lazy loading de imágenes
+- ✅ Tree shaking habilitado
+
+### Accesibilidad (a11y)
+- ✅ Labels ARIA en componentes interactivos
+- ✅ Navegación por teclado optimizada
+- ✅ Soporte para screen readers
+- ✅ Semantic HTML
+- ✅ Focus indicators visibles
+
+### Manejo de Errores
+- ✅ ErrorBoundary mejorado con sistema de reintentos
+- ✅ Manejo de errores de API
+- ✅ Mensajes user-friendly
+- ✅ Logging en development mode
 
 ## Estado del Proyecto
 
@@ -130,12 +200,22 @@ frontend/
 - Responsive design implementado
 - Breadcrumbs funcional
 
+### ✅ Sprint 8: Optimización y Testing (Completado)
+- Testing configurado con Vitest
+- Tests unitarios para componentes comunes
+- Tests para Redux store y hooks
+- Code splitting implementado
+- Componentes optimizados con React.memo
+- ErrorBoundary mejorado
+- Accesibilidad mejorada (ARIA labels)
+- Build optimizado para producción
+- Documentación completa
+
 ### 🚧 Próximos Sprints
 - Sprint 3: Autenticación y Autorización
 - Sprint 4: Dashboard Ejecutivo
 - Sprint 5-6: Módulos de Gestión
 - Sprint 7: Sistema de Reportes
-- Sprint 8: Optimización y Testing
 
 ## Licencia
 

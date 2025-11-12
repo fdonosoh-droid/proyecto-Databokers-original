@@ -2,8 +2,8 @@ import {
   Box,
   Card,
   CardContent,
-  Grid,
   Typography,
+  Grid,
 } from '@mui/material';
 import {
   PieChart,
@@ -28,7 +28,7 @@ interface ProjectStatisticsProps {
 const COLORS = ['#4caf50', '#ff9800', '#f44336', '#9e9e9e'];
 
 export default function ProjectStatistics({ projectId }: ProjectStatisticsProps) {
-  const { data: stats, isLoading } = useGetProjectStatisticsQuery(projectId);
+  const { isLoading } = useGetProjectStatisticsQuery(projectId);
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -77,7 +77,7 @@ export default function ProjectStatistics({ projectId }: ProjectStatisticsProps)
       {/* KPIs */}
       <Grid container spacing={3} mb={4}>
         {kpis.map((kpi, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
             <Card>
               <CardContent>
                 <Typography variant="subtitle2" color="text.secondary" gutterBottom>
@@ -98,7 +98,7 @@ export default function ProjectStatistics({ projectId }: ProjectStatisticsProps)
       {/* Gráficos */}
       <Grid container spacing={3}>
         {/* Unidades por Estado */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -111,14 +111,14 @@ export default function ProjectStatistics({ projectId }: ProjectStatisticsProps)
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) =>
-                      `${name}: ${(percent * 100).toFixed(0)}%`
+                    label={(props: any) =>
+                      `${props.name}: ${((props.percent || 0) * 100).toFixed(0)}%`
                     }
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {unitsByStatus.map((entry, index) => (
+                    {unitsByStatus.map((_entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -130,7 +130,7 @@ export default function ProjectStatistics({ projectId }: ProjectStatisticsProps)
         </Grid>
 
         {/* Ventas por Mes */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -151,32 +151,32 @@ export default function ProjectStatistics({ projectId }: ProjectStatisticsProps)
         </Grid>
 
         {/* Tabla de Comisiones */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Resumen de Comisiones
               </Typography>
               <Grid container spacing={2} mt={1}>
-                <Grid item xs={6} md={3}>
+                <Grid size={{ xs: 6, md: 3 }}>
                   <Typography variant="subtitle2" color="text.secondary">
                     Comisión Bruta
                   </Typography>
                   <Typography variant="h6">$170.000.000</Typography>
                 </Grid>
-                <Grid item xs={6} md={3}>
+                <Grid size={{ xs: 6, md: 3 }}>
                   <Typography variant="subtitle2" color="text.secondary">
                     Comisión Neta
                   </Typography>
                   <Typography variant="h6">$153.000.000</Typography>
                 </Grid>
-                <Grid item xs={6} md={3}>
+                <Grid size={{ xs: 6, md: 3 }}>
                   <Typography variant="subtitle2" color="text.secondary">
                     Comisiones Pagadas
                   </Typography>
                   <Typography variant="h6">$85.000.000</Typography>
                 </Grid>
-                <Grid item xs={6} md={3}>
+                <Grid size={{ xs: 6, md: 3 }}>
                   <Typography variant="subtitle2" color="text.secondary">
                     Comisiones Pendientes
                   </Typography>

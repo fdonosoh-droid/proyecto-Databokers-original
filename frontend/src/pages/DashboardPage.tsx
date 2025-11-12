@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Typography, Box, Grid, CircularProgress, Alert } from '@mui/material';
+import { Box, Grid, CircularProgress, Alert } from '@mui/material';
 import { PageTitle } from '../components/common';
 import {
   KPICard,
@@ -18,8 +18,8 @@ import {
   useGetRecentActivityQuery,
   useMarkAlertAsReadMutation,
   useExportDashboardMutation,
-  DashboardFilters as Filters,
 } from '../redux/api/dashboardApi';
+import type { DashboardFilters as Filters } from '../redux/api/dashboardApi';
 
 export default function DashboardPage() {
   const [filters, setFilters] = useState<Filters>({ periodo: 'mes' });
@@ -86,7 +86,7 @@ export default function DashboardPage() {
 
       {/* Grid de KPIs */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <KPICard
             label="Valorización Total"
             value={kpis?.valorizacionTotal || 0}
@@ -105,7 +105,7 @@ export default function DashboardPage() {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <KPICard
             label="Comisión Bruta Estimada"
             value={kpis?.comisionBrutaEstimada || 0}
@@ -124,7 +124,7 @@ export default function DashboardPage() {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <KPICard
             label="Comisión Neta"
             value={kpis?.comisionNeta || 0}
@@ -143,7 +143,7 @@ export default function DashboardPage() {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <KPICard
             label="Tasa de Conversión"
             value={kpis?.tasaConversion || 0}
@@ -162,7 +162,7 @@ export default function DashboardPage() {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <KPICard
             label="Tiempo Promedio de Venta"
             value={kpis?.tiempoPromedioVenta || 0}
@@ -181,7 +181,7 @@ export default function DashboardPage() {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <KPICard
             label="Inventario Disponible"
             value={kpis?.inventarioDisponible || 0}
@@ -200,7 +200,7 @@ export default function DashboardPage() {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <KPICard
             label="Rotación de Inventario"
             value={kpis?.rotacionInventario || 0}
@@ -219,7 +219,7 @@ export default function DashboardPage() {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <KPICard
             label="Canjes Activos"
             value={kpis?.canjesActivos || 0}
@@ -238,7 +238,7 @@ export default function DashboardPage() {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <KPICard
             label="Tasa de Éxito de Canjes"
             value={kpis?.tasaExitoCanjes || 0}
@@ -260,30 +260,30 @@ export default function DashboardPage() {
 
       {/* Gráficos */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} lg={8}>
+        <Grid size={{ xs: 12, lg: 8 }}>
           <SalesChart data={statistics?.ventasPorMes || []} />
         </Grid>
 
-        <Grid item xs={12} lg={4}>
+        <Grid size={{ xs: 12, lg: 4 }}>
           <BusinessModelChart data={statistics?.distribucionModeloNegocio || []} />
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <TradeInsChart data={statistics?.canjesPorEstado || []} />
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <PublicationsChart data={statistics?.publicacionesActivas || []} />
         </Grid>
       </Grid>
 
       {/* Actividad Reciente y Alertas */}
       <Grid container spacing={3}>
-        <Grid item xs={12} lg={8}>
+        <Grid size={{ xs: 12, lg: 8 }}>
           <RecentActivity activities={recentActivity || []} />
         </Grid>
 
-        <Grid item xs={12} lg={4}>
+        <Grid size={{ xs: 12, lg: 4 }}>
           {!alertsLoading && (
             <AlertsPanel alerts={alerts || []} onMarkAsRead={handleMarkAlertAsRead} />
           )}

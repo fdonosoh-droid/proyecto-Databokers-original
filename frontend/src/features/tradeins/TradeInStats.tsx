@@ -68,7 +68,7 @@ export default function TradeInStats({ filters }: TradeInStatsProps) {
     <Box>
       {/* KPIs */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
               <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -80,7 +80,7 @@ export default function TradeInStats({ filters }: TradeInStatsProps) {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
               <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -92,7 +92,7 @@ export default function TradeInStats({ filters }: TradeInStatsProps) {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
               <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -104,7 +104,7 @@ export default function TradeInStats({ filters }: TradeInStatsProps) {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardContent>
               <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -121,7 +121,7 @@ export default function TradeInStats({ filters }: TradeInStatsProps) {
       {/* Gráficos */}
       <Grid container spacing={3}>
         {/* Canjes por Estado */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Canjes por Estado
@@ -135,7 +135,7 @@ export default function TradeInStats({ filters }: TradeInStatsProps) {
                   cx="50%"
                   cy="50%"
                   outerRadius={100}
-                  label={(entry) => `${entry.estado}: ${entry.cantidad}`}
+                  label={(entry: any) => `${entry.estado}: ${entry.cantidad}`}
                 >
                   {estadosData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -149,7 +149,7 @@ export default function TradeInStats({ filters }: TradeInStatsProps) {
         </Grid>
 
         {/* Top Gestores */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Top Gestores

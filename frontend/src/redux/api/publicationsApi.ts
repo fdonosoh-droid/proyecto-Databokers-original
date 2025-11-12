@@ -52,7 +52,7 @@ export const publicationsApi = baseApi.injectEndpoints({
     // Obtener una publicación por ID
     getPublicationById: builder.query<Publication, string>({
       query: (id) => `/publicaciones/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Publications', id }],
+      providesTags: (_result, _error, id) => [{ type: 'Publications', id }],
     }),
 
     // Crear una publicación
@@ -75,7 +75,7 @@ export const publicationsApi = baseApi.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result, _error, { id }) => [
         { type: 'Publications', id },
         { type: 'Publications', id: 'LIST' },
       ],
@@ -96,7 +96,7 @@ export const publicationsApi = baseApi.injectEndpoints({
         url: `/publicaciones/${id}/toggle-estado`,
         method: 'PATCH',
       }),
-      invalidatesTags: (result, error, id) => [
+      invalidatesTags: (_result, _error, id) => [
         { type: 'Publications', id },
         { type: 'Publications', id: 'LIST' },
       ],
@@ -109,7 +109,7 @@ export const publicationsApi = baseApi.injectEndpoints({
         method: 'POST',
         body: { motivo },
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result, _error, { id }) => [
         { type: 'Publications', id },
         { type: 'Publications', id: 'LIST' },
       ],
@@ -125,7 +125,7 @@ export const publicationsApi = baseApi.injectEndpoints({
         method: 'POST',
         body: { fechaVencimiento: nuevaFechaVencimiento },
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result, _error, { id }) => [
         { type: 'Publications', id },
         { type: 'Publications', id: 'LIST' },
       ],
@@ -141,7 +141,7 @@ export const publicationsApi = baseApi.injectEndpoints({
         method: 'PATCH',
         body: { corredorId: nuevoCorredorId },
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result, _error, { id }) => [
         { type: 'Publications', id },
         { type: 'Publications', id: 'LIST' },
       ],
@@ -157,7 +157,7 @@ export const publicationsApi = baseApi.injectEndpoints({
         method: 'PATCH',
         body: metrics,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result, _error, { id }) => [
         { type: 'Publications', id },
         { type: 'Publications', id: 'LIST' },
       ],
@@ -167,7 +167,7 @@ export const publicationsApi = baseApi.injectEndpoints({
     getPublicationStats: builder.query<PublicationStats, PublicationFilters | void>({
       query: (filters) => ({
         url: '/publicaciones/estadisticas',
-        params: filters,
+        params: filters || {},
       }),
       providesTags: [{ type: 'Publications', id: 'STATS' }],
     }),

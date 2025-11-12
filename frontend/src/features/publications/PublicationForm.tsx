@@ -96,7 +96,7 @@ export default function PublicationForm({
       <form onSubmit={handleSubmit}>
         <Grid container spacing={3}>
           {/* Propiedad */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <TextField
               select
               fullWidth
@@ -118,7 +118,7 @@ export default function PublicationForm({
           </Grid>
 
           {/* Corredor */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <TextField
               select
               fullWidth
@@ -139,7 +139,7 @@ export default function PublicationForm({
           </Grid>
 
           {/* Tipo de Exclusividad */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <TextField
               select
               fullWidth
@@ -155,7 +155,7 @@ export default function PublicationForm({
           </Grid>
 
           {/* Comisión */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <TextField
               fullWidth
               label="Comisión Acordada"
@@ -171,7 +171,7 @@ export default function PublicationForm({
           </Grid>
 
           {/* Fecha de Vencimiento */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <TextField
               fullWidth
               label="Fecha de Vencimiento"
@@ -188,7 +188,7 @@ export default function PublicationForm({
           </Grid>
 
           {/* Notas */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <TextField
               fullWidth
               label="Notas"
@@ -201,7 +201,7 @@ export default function PublicationForm({
           </Grid>
 
           {/* Restricciones */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <TextField
               fullWidth
               label="Restricciones"

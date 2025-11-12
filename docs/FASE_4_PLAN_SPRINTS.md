@@ -44,6 +44,660 @@ Desarrollar el frontend completo del sistema Databrokers utilizando React + Type
 
 ---
 
+## ✅ CHECKLIST DE COMPLETITUD POR SPRINT
+
+### 📊 Progreso General
+- [ ] **Sprint 0.5:** Backend API Completion (RECOMENDADO)
+- [ ] **Sprint 1:** Setup y Configuración Inicial
+- [ ] **Sprint 2:** Layout y Navegación
+- [ ] **Sprint 3:** Autenticación y Autorización
+- [ ] **Sprint 4:** Dashboard Ejecutivo
+- [ ] **Sprint 5:** Módulos de Gestión (Parte 1)
+- [ ] **Sprint 6:** Módulos de Gestión (Parte 2)
+- [ ] **Sprint 7:** Sistema de Reportes
+- [ ] **Sprint 8:** Optimización y Testing
+
+---
+
+### 🏃 SPRINT 0.5: Backend API Completion (RECOMENDADO)
+**⏱️ Duración:** 1-1.5 semanas
+**🎯 Objetivo:** Completar endpoints backend faltantes antes de iniciar frontend
+**⚠️ Prioridad:** CRÍTICA (Bloquea Sprint 3 y Sprint 5)
+
+#### Endpoints Críticos Faltantes
+- [ ] **Auth Endpoints** (bloquea Sprint 3)
+  - [ ] POST `/api/auth/login`
+  - [ ] POST `/api/auth/logout`
+  - [ ] POST `/api/auth/refresh`
+  - [ ] GET `/api/auth/me`
+  - [ ] POST `/api/auth/forgot-password`
+  - [ ] POST `/api/auth/reset-password`
+
+- [ ] **Users Endpoints**
+  - [ ] GET `/api/users` (lista con paginación)
+  - [ ] GET `/api/users/:id`
+  - [ ] POST `/api/users`
+  - [ ] PUT `/api/users/:id`
+  - [ ] DELETE `/api/users/:id`
+  - [ ] PUT `/api/users/:id/password`
+  - [ ] GET `/api/users/profile`
+
+- [ ] **Properties Endpoints** (bloquea Sprint 5)
+  - [ ] GET `/api/properties` (con filtros y paginación)
+  - [ ] GET `/api/properties/:id`
+  - [ ] POST `/api/properties`
+  - [ ] PUT `/api/properties/:id`
+  - [ ] DELETE `/api/properties/:id`
+  - [ ] GET `/api/properties/:id/history`
+  - [ ] POST `/api/properties/:id/images`
+  - [ ] DELETE `/api/properties/:id/images/:imageId`
+
+- [ ] **Business Models Endpoints**
+  - [ ] GET `/api/business-models`
+  - [ ] GET `/api/business-models/:id`
+  - [ ] POST `/api/business-models`
+  - [ ] PUT `/api/business-models/:id`
+
+- [ ] **Domains/Parametros Endpoints**
+  - [ ] GET `/api/domains/categorias`
+  - [ ] GET `/api/domains/parametros/:categoriaId`
+
+#### Documentación y Testing
+- [ ] Crear colección Postman con todos los endpoints
+- [ ] Documentar request/response schemas
+- [ ] Crear seed data para desarrollo
+- [ ] Probar todos los endpoints con casos de éxito
+- [ ] Probar casos de error (validación, auth)
+- [ ] Documentar códigos de error
+- [ ] Configurar CORS para frontend local
+
+#### Criterios de Completitud
+- [ ] Todos los endpoints responden correctamente
+- [ ] Validaciones funcionando (Zod)
+- [ ] Autenticación JWT implementada
+- [ ] Documentación actualizada
+- [ ] Seed data disponible
+- [ ] Health check pasa: `/health`
+
+---
+
+### 🏃 SPRINT 1: Setup y Configuración Inicial
+**⏱️ Duración:** 1 semana
+**🎯 Objetivo:** Configurar proyecto React base con herramientas necesarias
+
+#### Inicialización del Proyecto
+- [ ] Crear proyecto React con Vite + TypeScript
+- [ ] Configurar estructura de carpetas completa
+- [ ] Instalar todas las dependencias principales
+- [ ] Configurar ESLint y Prettier
+- [ ] Configurar path aliases (`@/`)
+- [ ] Setup de Git hooks (pre-commit)
+
+#### Dependencias Instaladas
+- [ ] Material-UI + iconos + Emotion
+- [ ] Redux Toolkit + React Redux
+- [ ] React Router DOM v6
+- [ ] React Hook Form + Zod + resolvers
+- [ ] Axios + date-fns + Recharts
+- [ ] Dev dependencies (@types/node)
+
+#### Configuración Base
+- [ ] Tema Material-UI configurado (colores, tipografía)
+- [ ] Redux store configurado
+- [ ] RTK Query baseApi configurado
+- [ ] Variables de entorno (.env.local)
+- [ ] Proxy configurado (Vite)
+- [ ] Tipos TypeScript base creados
+
+#### Documentación
+- [ ] README.md con instrucciones setup
+- [ ] Documentación estructura carpetas
+- [ ] Guía convenciones de código
+
+#### Criterios de Completitud
+- [ ] `npm run dev` inicia sin errores
+- [ ] ESLint y Prettier funcionan
+- [ ] Tema MUI se aplica
+- [ ] Redux DevTools funciona
+- [ ] Build producción funciona (`npm run build`)
+
+---
+
+### 🏃 SPRINT 2: Layout y Navegación
+**⏱️ Duración:** 1.5 semanas
+**🎯 Objetivo:** Crear layout principal con navegación completa
+
+#### Componentes de Layout
+- [ ] `MainLayout` component implementado
+- [ ] `Header` con:
+  - [ ] Logo Databrokers
+  - [ ] Menú de usuario (perfil, config, logout)
+  - [ ] Badge de notificaciones
+  - [ ] Búsqueda global
+- [ ] `Sidebar` con:
+  - [ ] Menú navegación colapsable
+  - [ ] Iconos por módulo
+  - [ ] Estado activo de ruta
+  - [ ] Submenús
+- [ ] `Footer` (opcional)
+- [ ] `Breadcrumbs` component
+
+#### Sistema de Navegación
+- [ ] React Router configurado con rutas principales
+- [ ] Rutas protegidas (PrivateRoute)
+- [ ] Redirección según rol
+- [ ] Página 404
+- [ ] Página 403 (acceso denegado)
+
+#### Componentes Comunes
+- [ ] `LoadingSpinner` component
+- [ ] `ErrorBoundary` component
+- [ ] `EmptyState` component
+- [ ] `PageTitle` component
+- [ ] `Card` wrapper personalizado
+
+#### Responsive Design
+- [ ] Layout adaptado para mobile
+- [ ] Drawer para móvil implementado
+- [ ] Header responsivo
+- [ ] Probado en múltiples resoluciones
+
+#### Criterios de Completitud
+- [ ] Navegación entre páginas sin errores
+- [ ] Sidebar colapsa/expande correctamente
+- [ ] Menú de usuario funciona
+- [ ] Breadcrumbs se actualiza por ruta
+- [ ] Layout responsive (mobile/tablet/desktop)
+- [ ] Estado activo del menú correcto
+
+---
+
+### 🏃 SPRINT 3: Autenticación y Autorización
+**⏱️ Duración:** 1.5-2 semanas
+**🎯 Objetivo:** Sistema completo de autenticación y control de acceso
+**⚠️ Dependencia:** Requiere Sprint 0.5 completado
+
+#### Páginas de Autenticación
+- [ ] Página Login con:
+  - [ ] Formulario email/password
+  - [ ] Validación Zod
+  - [ ] Manejo de errores
+  - [ ] "Recordarme"
+  - [ ] Link recuperar contraseña
+- [ ] Página Recuperar Contraseña
+- [ ] Página Restablecer Contraseña
+- [ ] Diseño responsive formularios
+
+#### Redux Auth Slice
+- [ ] authSlice creado con RTK
+- [ ] Acciones implementadas:
+  - [ ] login
+  - [ ] logout
+  - [ ] refreshToken
+  - [ ] loadUser
+- [ ] Token persistido en localStorage
+- [ ] Auto-login con token válido
+
+#### API Integration
+- [ ] authApi con RTK Query creado
+- [ ] Endpoints implementados:
+  - [ ] POST /api/auth/login
+  - [ ] POST /api/auth/logout
+  - [ ] POST /api/auth/refresh
+  - [ ] GET /api/auth/me
+- [ ] Interceptores configurados:
+  - [ ] Agregar token a headers
+  - [ ] Manejar 401
+  - [ ] Refresh automático
+
+#### Protección de Rutas
+- [ ] HOC `withAuth` creado
+- [ ] Componente `PrivateRoute`
+- [ ] `RoleBasedAccess` component
+- [ ] Redirección automática por rol:
+  - [ ] ADMIN → Dashboard completo
+  - [ ] GESTOR → Dashboard limitado
+  - [ ] CORREDOR → Vista publicaciones
+
+#### Componentes de Usuario
+- [ ] Menú perfil usuario
+- [ ] Modal cambio contraseña
+- [ ] Página perfil usuario
+- [ ] Gestión sesión activa
+
+#### Criterios de Completitud
+- [ ] Login funciona y almacena token
+- [ ] Token enviado en cada request
+- [ ] Logout limpia sesión
+- [ ] Refresh token automático funciona
+- [ ] Rutas protegidas redirigen correctamente
+- [ ] Usuarios ven módulos según rol
+- [ ] Sesión persiste al recargar
+
+---
+
+### 🏃 SPRINT 4: Dashboard Ejecutivo
+**⏱️ Duración:** 2 semanas
+**🎯 Objetivo:** Dashboard con KPIs, gráficos y métricas en tiempo real
+
+#### API Integration
+- [ ] dashboardApi con RTK Query
+- [ ] Endpoints implementados:
+  - [ ] GET /api/dashboard/kpis
+  - [ ] GET /api/dashboard/statistics
+  - [ ] GET /api/dashboard/alerts
+  - [ ] GET /api/dashboard/recent-activity
+- [ ] Polling configurado para datos real-time
+
+#### Componentes de KPIs
+- [ ] `KPICard` genérico creado con:
+  - [ ] Valor principal
+  - [ ] Comparación período anterior
+  - [ ] Indicador tendencia (↑↓)
+  - [ ] Código colores por umbral
+- [ ] Grid KPIs implementado:
+  - [ ] Valorización Total
+  - [ ] Comisión Bruta Estimada
+  - [ ] Comisión Neta
+  - [ ] Tasa de Conversión
+  - [ ] Tiempo Promedio Venta
+  - [ ] Inventario Disponible
+  - [ ] Rotación Inventario
+  - [ ] Canjes Activos
+  - [ ] Tasa Éxito Canjes
+
+#### Gráficos y Visualizaciones
+- [ ] Gráfico ventas por mes (Line Chart)
+- [ ] Distribución modelo negocio (Pie Chart)
+- [ ] Canjes por estado (Bar Chart)
+- [ ] Publicaciones activas (Donut Chart)
+- [ ] Timeline actividad reciente
+- [ ] Mapa propiedades por región (opcional)
+
+#### Sistema de Alertas
+- [ ] `AlertsPanel` component creado
+- [ ] Tipos de alertas:
+  - [ ] Críticas (rojo)
+  - [ ] Advertencias (amarillo)
+  - [ ] Info (azul)
+- [ ] Notificaciones en header
+- [ ] Modal detalle alerta
+- [ ] Marcar alertas como leídas
+
+#### Filtros y Períodos
+- [ ] Selector período (hoy/semana/mes/año/personalizado)
+- [ ] Filtro modelo negocio
+- [ ] Filtro región/comuna
+- [ ] Exportar dashboard (PDF/Excel)
+
+#### Criterios de Completitud
+- [ ] 9 KPIs muestran datos reales
+- [ ] Comparaciones período anterior funcionan
+- [ ] Gráficos interactivos y responsive
+- [ ] Alertas actualizan en tiempo real
+- [ ] Filtros modifican datos correctamente
+- [ ] Dashboard carga < 2 segundos
+- [ ] Auto-actualización cada X minutos
+
+---
+
+### 🏃 SPRINT 5: Módulos de Gestión (Parte 1)
+**⏱️ Duración:** 2 semanas
+**🎯 Objetivo:** Implementar Proyectos y Propiedades
+**⚠️ Dependencia:** Requiere Properties API (Sprint 0.5)
+
+#### Módulo de Proyectos
+
+##### Listado de Proyectos
+- [ ] Página `ProjectsList` creada
+- [ ] Tabla con columnas completas
+- [ ] Filtros avanzados:
+  - [ ] Por estado
+  - [ ] Por modelo negocio
+  - [ ] Por región/comuna
+  - [ ] Búsqueda por nombre
+- [ ] Paginación implementada
+- [ ] Ordenamiento por columnas
+- [ ] Exportar a Excel
+
+##### Detalle de Proyecto
+- [ ] Página `ProjectDetail` creada
+- [ ] Tabs navegación:
+  - [ ] Información General
+  - [ ] Tipologías
+  - [ ] Unidades
+  - [ ] Estadísticas
+- [ ] Datos completos mostrados
+- [ ] Acciones: Editar/Cambiar Estado/Eliminar
+
+##### Formularios
+- [ ] `ProjectForm` component creado
+- [ ] Validación Zod implementada
+- [ ] Todos los campos implementados
+- [ ] Upload imágenes (opcional)
+
+##### Tipologías
+- [ ] `TypologiesList` implementada
+- [ ] Modal crear/editar tipología
+- [ ] Todos los campos funcionales
+- [ ] Eliminar tipología funciona
+
+##### Unidades
+- [ ] `UnitsList` implementada
+- [ ] Modal crear unidad
+- [ ] Asignar tipología funciona
+- [ ] Cambiar estado unidad
+- [ ] Vista plano piso (opcional)
+
+##### Estadísticas
+- [ ] Gráfico unidades por estado
+- [ ] Velocidad de ventas
+- [ ] Ingresos proyectados vs reales
+- [ ] Comisiones generadas
+
+#### Módulo de Propiedades
+
+##### Listado de Propiedades
+- [ ] Página `PropertiesList` creada
+- [ ] Tabla columnas principales
+- [ ] Filtros tipo/estado/modelo
+- [ ] Vista tarjetas (card view)
+- [ ] Vista lista (table view)
+
+##### Detalle de Propiedad
+- [ ] Página `PropertyDetail` creada
+- [ ] Galería de imágenes
+- [ ] Información completa
+- [ ] Historial transacciones
+- [ ] Valorización actual
+
+##### Formularios
+- [ ] Crear/Editar propiedad
+- [ ] Validación completa
+- [ ] Upload múltiple imágenes
+- [ ] Asignar a proyecto
+
+#### Criterios de Completitud
+- [ ] CRUD completo funciona
+- [ ] Validaciones previenen datos incorrectos
+- [ ] Filtros/búsqueda devuelven resultados
+- [ ] Paginación funciona
+- [ ] Jerarquía Proyecto→Tipología→Unidad funciona
+- [ ] Unidades disponibles actualiza automáticamente
+- [ ] Estadísticas calculan correctamente
+
+---
+
+### 🏃 SPRINT 6: Módulos de Gestión (Parte 2)
+**⏱️ Duración:** 2 semanas
+**🎯 Objetivo:** Implementar Canjes y Publicaciones
+
+#### Módulo de Canjes
+
+##### Listado
+- [ ] Página `TradeInsList` creada
+- [ ] Tabla columnas completas
+- [ ] Filtros:
+  - [ ] Por estado
+  - [ ] Por gestor
+  - [ ] Por rango fechas
+  - [ ] Por modelo negocio
+- [ ] Indicador visual diferencia valor
+
+##### Detalle
+- [ ] Página `TradeInDetail` creada
+- [ ] Secciones completas:
+  - [ ] Información general
+  - [ ] Propiedad entregada
+  - [ ] Propiedad recibida
+  - [ ] Valorización y diferencia
+  - [ ] Forma de pago
+  - [ ] Timeline estados
+  - [ ] Documentos adjuntos
+- [ ] Acciones según estado funcionales
+
+##### Formulario
+- [ ] `TradeInForm` component creado
+- [ ] Wizard 4 pasos implementado
+- [ ] Cálculo automático diferencia
+- [ ] Validación Zod
+- [ ] Preview antes de crear
+
+##### Gestión de Estados
+- [ ] Modal cambio estado
+- [ ] Flujo estados implementado
+- [ ] Comentarios en cambio
+- [ ] Notificaciones cambio estado
+
+##### Estadísticas
+- [ ] Gráfico canjes por estado
+- [ ] Tasa de éxito
+- [ ] Valor promedio diferencias
+- [ ] Tiempo promedio proceso
+- [ ] Top gestores
+
+#### Módulo de Publicaciones
+
+##### Listado
+- [ ] Página `PublicationsList` creada
+- [ ] Tabla columnas completas
+- [ ] Filtros:
+  - [ ] Por estado
+  - [ ] Por corredor
+  - [ ] Por exclusividad
+  - [ ] Por vencimiento próximo
+
+##### Detalle
+- [ ] Página `PublicationDetail` creada
+- [ ] Información publicación
+- [ ] Métricas:
+  - [ ] Visualizaciones
+  - [ ] Contactos generados
+  - [ ] Ofertas recibidas
+  - [ ] Tiempo en publicación
+- [ ] Timeline actividad
+- [ ] Panel corredor asignado
+- [ ] Botón renovar publicación
+
+##### Formulario
+- [ ] `PublicationForm` component creado
+- [ ] Seleccionar propiedad
+- [ ] Asignar corredor externo
+- [ ] Tipo exclusividad
+- [ ] Comisión acordada
+- [ ] Fecha vencimiento
+- [ ] Notas y restricciones
+
+##### Gestión
+- [ ] Pausar/Reactivar publicación
+- [ ] Finalizar publicación
+- [ ] Renovar publicación
+- [ ] Cambiar corredor asignado
+- [ ] Actualizar métricas manualmente
+
+##### Estadísticas
+- [ ] Publicaciones activas vs finalizadas
+- [ ] Efectividad por corredor
+- [ ] Comisiones generadas
+- [ ] Tiempo promedio hasta cierre
+
+#### Criterios de Completitud
+- [ ] Flujo canje completo funciona
+- [ ] Cálculo diferencia automático
+- [ ] Código único se genera
+- [ ] Publicaciones CRUD completo
+- [ ] Exclusividad respetada en lógica
+- [ ] Métricas visualización actualizan
+- [ ] Notificaciones vencimiento funcionan
+
+---
+
+### 🏃 SPRINT 7: Sistema de Reportes
+**⏱️ Duración:** 1.5 semanas
+**🎯 Objetivo:** Generador de reportes con preview y descarga
+
+#### Página de Reportes
+- [ ] Página `ReportsPage` creada
+- [ ] Lista tipos reportes:
+  - [ ] Reporte Proyectos
+  - [ ] Reporte Ventas
+  - [ ] Reporte Canjes
+  - [ ] Reporte Publicaciones
+  - [ ] Reporte Comisiones
+  - [ ] Reporte Consolidado
+
+#### Generador
+- [ ] `ReportGenerator` component creado
+- [ ] Formulario configuración:
+  - [ ] Seleccionar tipo
+  - [ ] Período tiempo
+  - [ ] Filtros específicos
+  - [ ] Formato (PDF/Excel)
+  - [ ] Opciones agrupación
+- [ ] Preview del reporte
+- [ ] Validación parámetros
+
+#### API Integration
+- [ ] reportsApi con RTK Query
+- [ ] Endpoints implementados:
+  - [ ] POST /api/reports/generate
+  - [ ] GET /api/reports/:id/download
+  - [ ] GET /api/reports/scheduled
+  - [ ] POST /api/reports/schedule
+- [ ] Manejo descarga archivos
+
+#### Reportes Individuales
+- [ ] Template cada tipo reporte
+- [ ] Visualización navegador (preview)
+- [ ] Descarga PDF
+- [ ] Descarga Excel
+- [ ] Envío email (opcional)
+
+#### Reportes Programados
+- [ ] Página `ScheduledReports` creada
+- [ ] Configurar reportes automáticos:
+  - [ ] Frecuencia (diario/semanal/mensual)
+  - [ ] Destinatarios
+  - [ ] Parámetros reporte
+- [ ] Listar reportes programados
+- [ ] Editar/Eliminar programación
+- [ ] Historial reportes generados
+
+#### Componentes Visualización
+- [ ] `ReportPreview` component
+- [ ] `ReportTable` component
+- [ ] `ReportChart` component
+- [ ] Estilos impresión (print.css)
+
+#### Criterios de Completitud
+- [ ] 6 tipos reportes se generan
+- [ ] Preview muestra datos correctos
+- [ ] Descarga PDF funciona
+- [ ] Descarga Excel funciona
+- [ ] Filtros aplican correctamente
+- [ ] Reportes programados ejecutan en horario
+- [ ] Historial disponible
+
+---
+
+### 🏃 SPRINT 8: Optimización y Testing
+**⏱️ Duración:** 1.5-2 semanas
+**🎯 Objetivo:** Optimizar rendimiento, testing y preparar producción
+
+#### Optimización de Rendimiento
+- [ ] Code splitting con React.lazy
+- [ ] Optimizar re-renders con React.memo
+- [ ] Virtualización tablas largas (react-window)
+- [ ] Lazy loading imágenes
+- [ ] Optimizar bundle size
+- [ ] Service worker PWA (opcional)
+
+#### Manejo de Errores
+- [ ] Mejorar ErrorBoundary global
+- [ ] Manejo errores de API
+- [ ] Mensajes error user-friendly
+- [ ] Retry automático requests fallidos
+- [ ] Modo offline (opcional)
+
+#### Testing
+- [ ] Tests unitarios componentes comunes
+- [ ] Tests Redux slices
+- [ ] Tests custom hooks
+- [ ] Tests utilidades
+- [ ] Tests integración flujos principales
+- [ ] Coverage mínimo 70%
+
+#### Accesibilidad (a11y)
+- [ ] Labels ARIA agregados
+- [ ] Navegación por teclado
+- [ ] Soporte screen readers
+- [ ] Contraste colores adecuado
+- [ ] Focus indicators visibles
+
+#### Documentación
+- [ ] Documentar componentes principales
+- [ ] Guía estilos código
+- [ ] Documentación API hooks
+- [ ] Guía deployment
+- [ ] Changelog
+
+#### Preparación Producción
+- [ ] Variables entorno producción
+- [ ] Build optimizado configurado
+- [ ] Logging y monitoring
+- [ ] Analytics implementado (opcional)
+- [ ] Error tracking (Sentry - opcional)
+
+#### Criterios de Completitud
+- [ ] Lighthouse score > 90 performance
+- [ ] Bundle size < 500KB (gzipped)
+- [ ] Tests pasan 100%
+- [ ] Sin errores consola
+- [ ] Funciona todos navegadores modernos
+- [ ] Build producción sin errores
+- [ ] Documentación completa y actualizada
+
+---
+
+## 📈 RESUMEN DE PROGRESO
+
+### Estado Actual
+```
+SPRINT 0.5: [████████████████████████] 100%  ✅  COMPLETADO
+  ✅ Auth Controller y Routes implementados
+  ✅ Users Controller y Routes implementados
+  ✅ Properties Controller y Routes implementados
+  ✅ Business Models Controller y Routes implementados
+  ✅ Domains Controller y Routes implementados
+  ✅ Errores de TypeScript arreglados (archivos nuevos)
+  ✅ Servidor funcionando correctamente
+  ✅ Endpoints probados y validados
+  ✅ Usuario administrador creado
+  📊 Total endpoints nuevos: 37
+
+SPRINT 1:   [ ] 0%  🚀  LISTO PARA INICIAR
+SPRINT 2:   [ ] 0%
+SPRINT 3:   [ ] 0%  ✅  Desbloqueado (Auth API lista)
+SPRINT 4:   [ ] 0%
+SPRINT 5:   [ ] 0%  ✅  Desbloqueado (Properties API lista)
+SPRINT 6:   [ ] 0%
+SPRINT 7:   [ ] 0%
+SPRINT 8:   [ ] 0%
+
+PROGRESO TOTAL: 11% (Sprint 0.5 completado al 100%)
+```
+
+### Próximos Pasos Inmediatos
+1. ✅ Aprobar este plan de sprints
+2. ✅ **SPRINT 0.5 COMPLETADO** - APIs backend implementadas y probadas
+3. 🚀 **INICIAR SPRINT 1** - Frontend Setup y Configuración
+4. 📝 Credenciales de prueba:
+   - Email: admin@databrokers.cl
+   - Password: admin123
+   - Token de prueba generado y validado
+
+---
+
 ## 🏗️ ARQUITECTURA FRONTEND
 
 ### Estructura de Carpetas

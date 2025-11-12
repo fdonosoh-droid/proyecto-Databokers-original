@@ -11,6 +11,11 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 // Importar rutas
+import authRoutes from './routes/auth.routes';
+import usersRoutes from './routes/users.routes';
+import propertiesRoutes from './routes/properties.routes';
+import businessModelsRoutes from './routes/business-models.routes';
+import domainsRoutes from './routes/domains.routes';
 import dashboardRoutes from './routes/dashboard.routes';
 import projectsRoutes from './routes/projects.routes';
 import publicationsRoutes from './routes/publications.routes';
@@ -18,7 +23,7 @@ import reportsRoutes from './routes/reports.routes';
 import tradeinsRoutes from './routes/tradeins.routes';
 
 // Importar servicios para inicialización
-import { iniciarSchedulerKPIs } from './services/kpis.service';
+// import { iniciarSchedulerKPIs } from './services/kpis.service'; // Temporalmente comentado
 
 // Configuración de variables de entorno
 dotenv.config();
@@ -75,6 +80,11 @@ app.get('/', (req: Request, res: Response) => {
     endpoints: {
       health: '/health',
       api: {
+        auth: '/api/auth',
+        users: '/api/users',
+        properties: '/api/properties',
+        businessModels: '/api/business-models',
+        domains: '/api/domains',
         dashboard: '/api/dashboard',
         projects: '/api/projects',
         publications: '/api/publications',
@@ -87,16 +97,16 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // Registrar rutas de módulos
+app.use('/api/auth', authRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/properties', propertiesRoutes);
+app.use('/api/business-models', businessModelsRoutes);
+app.use('/api/domains', domainsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/projects', projectsRoutes);
 app.use('/api/publications', publicationsRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/trade-ins', tradeinsRoutes);
-
-// Nota: Agregar estas rutas cuando estén disponibles:
-// app.use('/api/users', usersRoutes);
-// app.use('/api/properties', propertiesRoutes);
-// app.use('/api/business-models', businessModelsRoutes);
 
 // =====================================================
 // MANEJO DE ERRORES
@@ -130,8 +140,8 @@ async function startServer() {
   try {
     // Iniciar servicios automáticos
     console.log('🔄 Iniciando servicios automáticos...');
-    iniciarSchedulerKPIs();
-    console.log('✅ Scheduler de KPIs iniciado');
+    // iniciarSchedulerKPIs(); // Temporalmente comentado
+    // console.log('✅ Scheduler de KPIs iniciado');
 
     // Nota: Descomentar cuando AlertsService esté disponible
     // import { iniciarMonitoreoAlertas } from './services/alerts.service';

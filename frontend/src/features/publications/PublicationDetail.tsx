@@ -134,7 +134,7 @@ export default function PublicationDetail({
         <Divider sx={{ mb: 2 }} />
         {publication.propiedad ? (
           <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="body2" color="text.secondary">
                 Dirección
               </Typography>
@@ -142,7 +142,7 @@ export default function PublicationDetail({
                 {publication.propiedad.direccion}
               </Typography>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="body2" color="text.secondary">
                 Tipo
               </Typography>
@@ -150,7 +150,7 @@ export default function PublicationDetail({
                 {publication.propiedad.tipo}
               </Typography>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="body2" color="text.secondary">
                 Precio
               </Typography>
@@ -158,7 +158,7 @@ export default function PublicationDetail({
                 {formatCurrency(publication.propiedad.precio)}
               </Typography>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="body2" color="text.secondary">
                 Características
               </Typography>
@@ -182,7 +182,7 @@ export default function PublicationDetail({
         </Typography>
         <Divider sx={{ mb: 2 }} />
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="body2" color="text.secondary">
               Nombre
             </Typography>
@@ -192,7 +192,7 @@ export default function PublicationDetail({
                 : 'N/A'}
             </Typography>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="body2" color="text.secondary">
               Email
             </Typography>
@@ -210,7 +210,7 @@ export default function PublicationDetail({
         </Typography>
         <Divider sx={{ mb: 2 }} />
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="body2" color="text.secondary">
               Tipo de Exclusividad
             </Typography>
@@ -218,7 +218,7 @@ export default function PublicationDetail({
               {publication.tipoExclusividad.replace('_', ' ')}
             </Typography>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="body2" color="text.secondary">
               Comisión Acordada
             </Typography>
@@ -226,7 +226,7 @@ export default function PublicationDetail({
               {formatCurrency(publication.comisionAcordada)}
             </Typography>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="body2" color="text.secondary">
               Fecha de Inicio
             </Typography>
@@ -234,7 +234,7 @@ export default function PublicationDetail({
               {formatDate(publication.fechaInicio)}
             </Typography>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="body2" color="text.secondary">
               Fecha de Vencimiento
             </Typography>
@@ -254,7 +254,7 @@ export default function PublicationDetail({
               </Typography>
             )}
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="body2" color="text.secondary">
               Días en Publicación
             </Typography>
@@ -265,7 +265,7 @@ export default function PublicationDetail({
 
       {/* Métricas de Performance */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -283,7 +283,7 @@ export default function PublicationDetail({
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -301,7 +301,7 @@ export default function PublicationDetail({
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>

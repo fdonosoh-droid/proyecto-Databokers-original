@@ -158,7 +158,7 @@ export default function TradeInForm({
               Ingrese las valorizaciones
             </Typography>
             <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   label="Valorización Propiedad Entregada"
@@ -174,7 +174,7 @@ export default function TradeInForm({
                   }}
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   label="Valorización Propiedad Recibida"
@@ -250,7 +250,7 @@ export default function TradeInForm({
                 </Typography>
                 <Divider sx={{ my: 2, borderColor: 'primary.contrastText' }} />
                 <Grid container spacing={2}>
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <Typography variant="body2" sx={{ opacity: 0.9 }}>
                       Diferencia Total:
                     </Typography>
@@ -258,7 +258,7 @@ export default function TradeInForm({
                       {formatCurrency(calculateDifference())}
                     </Typography>
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <Typography variant="body2" sx={{ opacity: 0.9 }}>
                       Forma de Pago:
                     </Typography>

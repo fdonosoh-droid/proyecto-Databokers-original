@@ -8,6 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  Cell,
 } from 'recharts';
 
 interface TradeInsChartProps {
@@ -44,8 +45,8 @@ export default function TradeInsChart({ data }: TradeInsChartProps) {
               <Tooltip />
               <Legend />
               <Bar dataKey="cantidad" name="Cantidad">
-                {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={getBarColor(entry.estado)} />
+                {data.map((entry, _index) => (
+                  <Cell key={`cell-${entry.estado}`} fill={getBarColor(entry.estado)} />
                 ))}
               </Bar>
             </BarChart>
