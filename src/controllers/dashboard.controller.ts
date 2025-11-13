@@ -12,7 +12,7 @@ import {
   calcularTodosLosKPIs,
   compararKPI,
   obtenerHistoricoKPI
-} from '../services/kpis.service';
+} from '../services/kpis-simple.service';
 
 const prisma = new PrismaClient();
 
@@ -820,6 +820,297 @@ export async function getResumenFinanciero(req: Request, res: Response) {
 
   } catch (error) {
     console.error('Error al obtener resumen financiero:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+}
+
+// =====================================================
+// ESTADÍSTICAS Y ALERTAS
+// =====================================================
+
+/**
+ * Obtener estadísticas del dashboard
+ * GET /api/dashboard/statistics
+ */
+export async function getStatistics(req: Request, res: Response) {
+  try {
+    const { modelo_negocio_id } = req.query;
+    const startTime = Date.now();
+
+    // Ventas por mes (últimos 12 meses)
+    const now = new Date();
+    const hace12Meses = new Date(now.getFullYear(), now.getMonth() - 12, 1);
+
+    // Construir la consulta SQL dinámicamente
+    let ventasPorMes: any[] = [];
+    if (modelo_negocio_id) {
+      ventasPorMes = await prisma.$queryRaw`
+        SELECT
+          TO_CHAR(fecha_venta, 'YYYY-MM') as mes,
+          COUNT(*)::int as ventas,
+          SUM(precio)::numeric as ingresos
+        FROM propiedades
+        WHERE fecha_venta >= ${hace12Meses}
+          AND estado_propiedad_id = 6
+          AND modelo_negocio_id = ${Number(modelo_negocio_id)}
+        GROUP BY TO_CHAR(fecha_venta, 'YYYY-MM')
+        ORDER BY mes DESC
+        LIMIT 12
+      `;
+    } else {
+      ventasPorMes = await prisma.$queryRaw`
+        SELECT
+          TO_CHAR(fecha_venta, 'YYYY-MM') as mes,
+          COUNT(*)::int as ventas,
+          SUM(precio)::numeric as ingresos
+        FROM propiedades
+        WHERE fecha_venta >= ${hace12Meses}
+          AND estado_propiedad_id = 6
+        GROUP BY TO_CHAR(fecha_venta, 'YYYY-MM')
+        ORDER BY mes DESC
+        LIMIT 12
+      `;
+    }
+
+    // Distribución por modelo de negocio
+    const distribucionModelo = await prisma.propiedades.groupBy({
+      by: ['modelo_negocio_id'],
+      where: {
+        activo: true
+      },
+      _count: true
+    });
+
+    const modelosConNombres = await Promise.all(
+      distribucionModelo.map(async (item) => {
+        const modelo = await prisma.modelos_negocio.findUnique({
+          where: { id: item.modelo_negocio_id }
+        });
+        return {
+          modelo: modelo?.nombre || 'Sin modelo',
+          cantidad: item._count,
+          porcentaje: 0 // Se calculará después
+        };
+      })
+    );
+
+    const totalPropiedades = modelosConNombres.reduce((sum, m) => sum + m.cantidad, 0);
+    modelosConNombres.forEach(m => {
+      m.porcentaje = totalPropiedades > 0 ? (m.cantidad / totalPropiedades) * 100 : 0;
+    });
+
+    // Canjes por estado
+    const canjesPorEstado = await prisma.canjes.groupBy({
+      by: ['estado_canje_id'],
+      where: {
+        activo: true
+      },
+      _count: true
+    });
+
+    const canjesConNombres = await Promise.all(
+      canjesPorEstado.map(async (item) => {
+        const estado = await prisma.dom_parametros.findUnique({
+          where: { id: item.estado_canje_id }
+        });
+        return {
+          estado: estado?.nombre || 'Desconocido',
+          cantidad: item._count
+        };
+      })
+    );
+
+    // Publicaciones activas
+    const publicacionesActivas = await prisma.publicaciones_corredores.count({
+      where: {
+        activo: true,
+        fecha_fin: {
+          gte: now
+        }
+      }
+    });
+
+    // Actividad reciente (últimos 10 registros)
+    const actividadReciente = await prisma.auditoria_log.findMany({
+      take: 10,
+      orderBy: {
+        created_at: 'desc'
+      },
+      include: {
+        usuario: {
+          select: {
+            nombre: true,
+            apellido: true
+          }
+        }
+      }
+    });
+
+    const responseTime = Date.now() - startTime;
+
+    res.json({
+      success: true,
+      data: {
+        ventasPorMes: ventasPorMes || [],
+        distribucionModeloNegocio: modelosConNombres,
+        canjesPorEstado: canjesConNombres,
+        publicacionesActivas: [
+          { tipo: 'Activas', cantidad: publicacionesActivas }
+        ],
+        actividadReciente: actividadReciente.map(log => ({
+          id: String(log.id),
+          tipo: 'audit',
+          descripcion: log.descripcion || 'Sin descripción',
+          fecha: log.created_at.toISOString(),
+          usuario: log.usuario ? `${log.usuario.nombre} ${log.usuario.apellido || ''}`.trim() : 'Sistema'
+        }))
+      },
+      meta: {
+        responseTime: `${responseTime}ms`
+      }
+    });
+
+  } catch (error) {
+    console.error('Error al obtener estadísticas:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+}
+
+/**
+ * Obtener alertas del dashboard
+ * GET /api/dashboard/alerts
+ */
+export async function getAlerts(req: Request, res: Response) {
+  try {
+    const startTime = Date.now();
+
+    const alertas = await prisma.alertas.findMany({
+      where: {
+        activo: true,
+        leida: false
+      },
+      orderBy: {
+        created_at: 'desc'
+      },
+      take: 50
+    });
+
+    const responseTime = Date.now() - startTime;
+
+    res.json({
+      success: true,
+      data: alertas.map(alerta => ({
+        id: String(alerta.id),
+        type: alerta.tipo_alerta,
+        severity: alerta.severidad,
+        title: alerta.titulo,
+        message: alerta.mensaje,
+        read: alerta.leida,
+        createdAt: alerta.created_at.toISOString()
+      })),
+      meta: {
+        responseTime: `${responseTime}ms`
+      }
+    });
+
+  } catch (error) {
+    console.error('Error al obtener alertas:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+}
+
+/**
+ * Obtener actividad reciente
+ * GET /api/dashboard/recent-activity
+ */
+export async function getRecentActivity(req: Request, res: Response) {
+  try {
+    const { limit = 10 } = req.query;
+    const startTime = Date.now();
+
+    const actividad = await prisma.auditoria_log.findMany({
+      take: Number(limit),
+      orderBy: {
+        created_at: 'desc'
+      },
+      include: {
+        usuario: {
+          select: {
+            nombre: true,
+            apellido: true
+          }
+        }
+      }
+    });
+
+    const responseTime = Date.now() - startTime;
+
+    res.json({
+      success: true,
+      data: actividad.map(log => ({
+        id: String(log.id),
+        tipo: 'audit',
+        descripcion: log.descripcion || 'Sin descripción',
+        fecha: log.created_at.toISOString(),
+        usuario: log.usuario ? `${log.usuario.nombre} ${log.usuario.apellido || ''}`.trim() : 'Sistema'
+      })),
+      meta: {
+        responseTime: `${responseTime}ms`
+      }
+    });
+
+  } catch (error) {
+    console.error('Error al obtener actividad reciente:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+}
+
+/**
+ * Marcar alerta como leída
+ * PATCH /api/dashboard/alerts/:id/read
+ */
+export async function markAlertAsRead(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const startTime = Date.now();
+
+    const alerta = await prisma.alertas.update({
+      where: {
+        id: Number(id)
+      },
+      data: {
+        leida: true,
+        fecha_leida: new Date()
+      }
+    });
+
+    const responseTime = Date.now() - startTime;
+
+    res.json({
+      success: true,
+      data: {
+        id: String(alerta.id),
+        leida: alerta.leida
+      },
+      meta: {
+        responseTime: `${responseTime}ms`
+      }
+    });
+
+  } catch (error) {
+    console.error('Error al marcar alerta como leída:', error);
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor'

@@ -41,6 +41,14 @@ export const authApi = baseApi.injectEndpoints({
         method: 'POST',
         body: credentials,
       }),
+      transformResponse: (response: any) => ({
+        user: {
+          ...response.data.user,
+          rol: response.data.user.rol?.codigo || 'CORREDOR',
+        },
+        token: response.data.accessToken,
+        refreshToken: response.data.refreshToken,
+      }),
       invalidatesTags: ['Auth'],
     }),
 

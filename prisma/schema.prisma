@@ -364,6 +364,21 @@ model programacion_reportes {
 // 10. KPIs Y ALERTAS
 // =====================================================
 
+model kpis {
+  id             Int      @id @default(autoincrement())
+  codigo         String   @unique @db.VarChar(50)
+  nombre         String   @db.VarChar(200)
+  descripcion    String?
+  umbral_min     Decimal? @db.Decimal(15, 4)
+  umbral_max     Decimal? @db.Decimal(15, 4)
+  unidad_medida  String?  @db.VarChar(50)
+  activo         Boolean  @default(true)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  @@map("kpis")
+}
+
 model kpi_valores {
   id              Int      @id @default(autoincrement())
   kpi_id          Int

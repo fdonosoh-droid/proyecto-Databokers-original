@@ -69,6 +69,58 @@ router.get(
 );
 
 // =====================================================
+// RUTAS DE ESTADÍSTICAS Y ALERTAS
+// =====================================================
+
+/**
+ * @route   GET /api/dashboard/statistics
+ * @desc    Obtener estadísticas del dashboard
+ * @access  Admin, Gestor, Analista
+ */
+router.get(
+  '/statistics',
+  authenticateToken,
+  authorizeRoles('ADMIN', 'GESTOR', 'ANALISTA'),
+  dashboardController.getStatistics
+);
+
+/**
+ * @route   GET /api/dashboard/alerts
+ * @desc    Obtener alertas del dashboard
+ * @access  Admin, Gestor, Analista
+ */
+router.get(
+  '/alerts',
+  authenticateToken,
+  authorizeRoles('ADMIN', 'GESTOR', 'ANALISTA'),
+  dashboardController.getAlerts
+);
+
+/**
+ * @route   GET /api/dashboard/recent-activity
+ * @desc    Obtener actividad reciente
+ * @access  Admin, Gestor, Analista
+ */
+router.get(
+  '/recent-activity',
+  authenticateToken,
+  authorizeRoles('ADMIN', 'GESTOR', 'ANALISTA'),
+  dashboardController.getRecentActivity
+);
+
+/**
+ * @route   PATCH /api/dashboard/alerts/:id/read
+ * @desc    Marcar alerta como leída
+ * @access  Admin, Gestor, Analista
+ */
+router.patch(
+  '/alerts/:id/read',
+  authenticateToken,
+  authorizeRoles('ADMIN', 'GESTOR', 'ANALISTA'),
+  dashboardController.markAlertAsRead
+);
+
+// =====================================================
 // RUTAS DE GRÁFICOS
 // =====================================================
 

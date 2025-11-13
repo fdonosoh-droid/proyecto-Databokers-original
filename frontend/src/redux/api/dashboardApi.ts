@@ -70,6 +70,39 @@ export const dashboardApi = baseApi.injectEndpoints({
         url: '/dashboard/kpis',
         params: filters || {},
       }),
+      transformResponse: (response: any) => {
+        // Transformar array de KPIs a objeto plano
+        const kpisArray = response.data || [];
+        const kpisMap: any = {};
+
+        // Mapear códigos de KPI a propiedades del objeto
+        const mapping: Record<string, string> = {
+          'VALORIZACION_TOTAL': 'valorizacionTotal',
+          'COMISION_TOTAL_GENERADA': 'comisionBrutaEstimada',
+          'COMISION_NETA_AGENCIA': 'comisionNeta',
+          'TASA_CONVERSION': 'tasaConversion',
+          'TIEMPO_PROMEDIO_VENTA': 'tiempoPromedioVenta',
+          'INDICE_STOCK': 'inventarioDisponible',
+          'ROTACION_INVENTARIO': 'rotacionInventario',
+          'CANJES_ACTIVOS': 'canjesActivos',
+          'TASA_EXITO_CANJES': 'tasaExitoCanjes',
+        };
+
+        const cambios: any = {};
+
+        kpisArray.forEach((kpi: any) => {
+          const propName = mapping[kpi.codigo];
+          if (propName) {
+            kpisMap[propName] = kpi.valor;
+            cambios[propName] = kpi.comparacion?.variacion || 0;
+          }
+        });
+
+        return {
+          ...kpisMap,
+          cambios
+        };
+      },
       providesTags: ['Dashboard'],
       // Polling cada 5 minutos para datos en tiempo real
       keepUnusedDataFor: 300,

@@ -34,8 +34,6 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 import cron from 'node-cron';
 
-const prisma = new PrismaClient();
-
 // =====================================================
 // TIPOS Y CONSTANTES
 // =====================================================
@@ -43,7 +41,7 @@ const prisma = new PrismaClient();
 /**
  * Tipos de entidades para KPIs
  */
-enum EntityType {
+export enum EntityType {
   BUSINESS_MODEL = 1,  // Modelo de Negocio
   MANAGER = 2,         // Gestor
   BROKER = 3,          // Corredor
@@ -54,7 +52,7 @@ enum EntityType {
 /**
  * Tipos de período
  */
-enum PeriodType {
+export enum PeriodType {
   DAILY = 1,
   WEEKLY = 2,
   MONTHLY = 3,
@@ -104,7 +102,7 @@ interface KPIConfig {
 /**
  * Parámetros de período
  */
-interface PeriodParams {
+export interface PeriodParams {
   startDate: Date;
   endDate: Date;
   periodType: PeriodType;
@@ -113,7 +111,7 @@ interface PeriodParams {
 /**
  * Parámetros de entidad
  */
-interface EntityParams {
+export interface EntityParams {
   entityType: EntityType;
   entityId: number;
 }
@@ -123,10 +121,16 @@ interface EntityParams {
 // =====================================================
 
 export class KPIsService {
-  
+
   private static instance: KPIsService;
+  private prisma: PrismaClient;
   private kpiConfigs: Map<string, KPIConfig> = new Map();
   private isInitialized: boolean = false;
+
+  private constructor() {
+    this.prisma = new PrismaClient();
+    console.log('🔍 KPIsService constructor: prisma client initialized', !!this.prisma);
+  }
 
   /**
    * Singleton pattern
@@ -146,7 +150,8 @@ export class KPIsService {
 
     try {
       // Cargar configuraciones de KPIs desde la base de datos
-      const kpis = await prisma.kpis.findMany({
+      console.log('🔍 KPIsService.initialize: About to call prisma.kpis.findMany, this.prisma is', !!this.prisma);
+      const kpis = await this.prisma.kpis.findMany({
         where: { activo: true }
       });
 
@@ -211,10 +216,10 @@ export class KPIsService {
     }
 
     // Total de propiedades en el período
-    const totalProperties = await prisma.propiedades.count({ where });
+    const totalProperties = await this.prisma.propiedades.count({ where });
 
     // Propiedades vendidas (estado = 3, según dominio)
-    const soldProperties = await prisma.propiedades.count({
+    const soldProperties = await this.prisma.propiedades.count({
       where: {
         ...where,
         estado: 3 // Vendida
@@ -257,7 +262,7 @@ export class KPIsService {
       where.modelo_negocio_id = entity.entityId;
     }
 
-    const soldProperties = await prisma.propiedades.findMany({
+    const soldProperties = await this.prisma.propiedades.findMany({
       where,
       select: {
         fecha_creacion: true,
@@ -319,7 +324,7 @@ export class KPIsService {
       where.modelo_negocio_id = entity.entityId;
     }
 
-    const result = await prisma.propiedades.aggregate({
+    const result = await this.prisma.propiedades.aggregate({
       where,
       _sum: {
         precio_venta: true
@@ -363,7 +368,7 @@ export class KPIsService {
       where.modelo_negocio_id = entity.entityId;
     }
 
-    const soldProperties = await prisma.propiedades.findMany({
+    const soldProperties = await this.prisma.propiedades.findMany({
       where,
       select: {
         precio_venta: true,
@@ -423,7 +428,7 @@ export class KPIsService {
       };
     }
 
-    const publications = await prisma.publicaciones.findMany({
+    const publications = await this.prisma.publicaciones.findMany({
       where,
       select: {
         comision_corredor_monto: true,
@@ -473,13 +478,13 @@ export class KPIsService {
       where.modelo_negocio_id = entity.entityId;
     }
 
-    const currentStock = await prisma.propiedades.count({ where });
+    const currentStock = await this.prisma.propiedades.count({ where });
 
     // Obtener stock objetivo del modelo de negocio
     let targetStock = 100; // Valor por defecto
 
     if (entity.entityType === EntityType.BUSINESS_MODEL) {
-      const model = await prisma.modelos_negocio.findUnique({
+      const model = await this.prisma.modelos_negocio.findUnique({
         where: { id: entity.entityId }
       });
       
@@ -525,7 +530,7 @@ export class KPIsService {
     }
 
     // Propiedades asignadas al corredor
-    const assignedProperties = await prisma.publicaciones.count({
+    const assignedProperties = await this.prisma.publicaciones.count({
       where: {
         corredor_id: entity.entityId,
         fecha_publicacion: {
@@ -536,7 +541,7 @@ export class KPIsService {
     });
 
     // Ventas realizadas por el corredor
-    const salesByBroker = await prisma.publicaciones.count({
+    const salesByBroker = await this.prisma.publicaciones.count({
       where: {
         corredor_id: entity.entityId,
         propiedades: {
@@ -587,10 +592,10 @@ export class KPIsService {
     }
 
     // Total de canjes iniciados
-    const totalTradeIns = await prisma.canjes.count({ where });
+    const totalTradeIns = await this.prisma.canjes.count({ where });
 
     // Canjes finalizados exitosamente (estado = 4 según dominio)
-    const successfulTradeIns = await prisma.canjes.count({
+    const successfulTradeIns = await this.prisma.canjes.count({
       where: {
         ...where,
         estado: 4 // Finalizado
@@ -636,7 +641,7 @@ export class KPIsService {
     const revenue = netCommissionResult.value;
 
     // Costos: Extraer del metadata del modelo o usar estimación
-    const model = await prisma.modelos_negocio.findUnique({
+    const model = await this.prisma.modelos_negocio.findUnique({
       where: { id: entity.entityId }
     });
 
@@ -723,7 +728,7 @@ export class KPIsService {
       };
 
       // Calcular para todos los modelos de negocio
-      const models = await prisma.modelos_negocio.findMany({
+      const models = await this.prisma.modelos_negocio.findMany({
         where: { activo: true }
       });
 
@@ -737,7 +742,7 @@ export class KPIsService {
       }
 
       // Calcular para todos los corredores
-      const brokers = await prisma.usuarios.findMany({
+      const brokers = await this.prisma.usuarios.findMany({
         where: { rol_id: 3, activo: true } // Rol corredor
       });
 
@@ -867,7 +872,7 @@ export class KPIsService {
     entity: EntityParams,
     period: PeriodParams
   ): Promise<number | null> {
-    const value = await prisma.kpi_valores.findFirst({
+    const value = await this.prisma.kpi_valores.findFirst({
       where: {
         kpi_id: kpiId,
         entidad_tipo_id: entity.entityType,
@@ -888,7 +893,7 @@ export class KPIsService {
    */
   private async saveKPIValue(data: any): Promise<void> {
     try {
-      await prisma.kpi_valores.create({
+      await this.prisma.kpi_valores.create({
         data: {
           ...data,
           valor: new Prisma.Decimal(data.valor),
@@ -928,7 +933,7 @@ export class KPIsService {
         message += ` (por debajo del mínimo: ${config.minThreshold})`;
       }
 
-      await prisma.alertas.create({
+      await this.prisma.alertas.create({
         data: {
           tipo_alerta_id: 3, // KPI según dominio
           categoria_alerta_id: level,
@@ -967,7 +972,7 @@ export class KPIsService {
     entity: EntityParams,
     period: PeriodParams
   ): Promise<any> {
-    const kpiValues = await prisma.kpi_valores.findMany({
+    const kpiValues = await this.prisma.kpi_valores.findMany({
       where: {
         entidad_tipo_id: entity.entityType,
         entidad_id: entity.entityId,
@@ -1010,7 +1015,7 @@ export class KPIsService {
       throw new Error(`KPI not found: ${kpiCode}`);
     }
 
-    const history = await prisma.kpi_valores.findMany({
+    const history = await this.prisma.kpi_valores.findMany({
       where: {
         kpi_id: config.id,
         entidad_tipo_id: entity.entityType,
@@ -1079,4 +1084,178 @@ export class KPIsService {
 // EXPORTAR INSTANCIA SINGLETON
 // =====================================================
 
-export default KPIsService.getInstance();
+const kpisServiceInstance = KPIsService.getInstance();
+export default kpisServiceInstance;
+
+// =====================================================
+// FUNCIONES WRAPPER PARA COMPATIBILIDAD
+// =====================================================
+
+// Cliente Prisma para las funciones wrapper
+const prismaWrapper = new PrismaClient();
+
+/**
+ * Calcular todos los KPIs para un modelo de negocio
+ */
+export async function calcularTodosLosKPIs(modeloNegocioId?: number) {
+  try {
+    // Asegurar que el servicio está inicializado
+    await kpisServiceInstance.initialize();
+
+    // Crear parámetros de período (mes actual)
+    const now = new Date();
+    const period: PeriodParams = {
+      startDate: new Date(now.getFullYear(), now.getMonth(), 1),
+      endDate: new Date(now.getFullYear(), now.getMonth() + 1, 0),
+      periodType: PeriodType.MONTHLY
+    };
+
+    // Crear parámetros de entidad
+    let entity: EntityParams;
+
+    if (modeloNegocioId) {
+      entity = {
+        entityType: EntityType.BUSINESS_MODEL,
+        entityId: modeloNegocioId
+      };
+    } else {
+      // Si no se especifica modelo, usar el primero activo
+      const primerModelo = await prismaWrapper.modelos_negocio.findFirst({
+        where: { activo: true }
+      });
+
+      if (!primerModelo) {
+        throw new Error('No hay modelos de negocio activos');
+      }
+
+      entity = {
+        entityType: EntityType.BUSINESS_MODEL,
+        entityId: primerModelo.id
+      };
+    }
+
+    // Calcular KPIs
+    const kpis = await kpisServiceInstance.calculateAllKPIs(entity, period);
+
+    return {
+      success: true,
+      kpis: kpis.map(kpi => ({
+        codigo: kpi.code,
+        valor: kpi.value,
+        valorAnterior: kpi.previousValue,
+        porcentajeCambio: kpi.percentageChange,
+        tendencia: kpi.trend,
+        dentroUmbral: kpi.isWithinThreshold,
+        metadata: kpi.metadata
+      }))
+    };
+  } catch (error) {
+    console.error('Error en calcularTodosLosKPIs:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Error desconocido',
+      kpis: []
+    };
+  }
+}
+
+/**
+ * Comparar KPI con período anterior
+ */
+export async function compararKPI(
+  codigoKPI: string,
+  fecha: Date,
+  modeloNegocioId?: number
+) {
+  try {
+    // Asegurar que el servicio está inicializado
+    await kpisServiceInstance.initialize();
+
+    // Crear parámetros de entidad
+    let entity: EntityParams;
+
+    if (modeloNegocioId) {
+      entity = {
+        entityType: EntityType.BUSINESS_MODEL,
+        entityId: modeloNegocioId
+      };
+    } else {
+      const primerModelo = await prismaWrapper.modelos_negocio.findFirst({
+        where: { activo: true }
+      });
+
+      if (!primerModelo) {
+        return null;
+      }
+
+      entity = {
+        entityType: EntityType.BUSINESS_MODEL,
+        entityId: primerModelo.id
+      };
+    }
+
+    // Obtener tendencia
+    const trend = await kpisServiceInstance.getKPITrend(codigoKPI, entity, 2);
+
+    return {
+      valorActual: trend.last_value,
+      valorAnterior: trend.first_value,
+      cambio: trend.change,
+      porcentajeCambio: trend.percentage_change,
+      direccion: trend.direction
+    };
+  } catch (error) {
+    console.error('Error en compararKPI:', error);
+    return null;
+  }
+}
+
+/**
+ * Obtener histórico de un KPI
+ */
+export async function obtenerHistoricoKPI(
+  codigoKPI: string,
+  modeloNegocioId?: number,
+  limite: number = 12
+) {
+  try {
+    // Asegurar que el servicio está inicializado
+    await kpisServiceInstance.initialize();
+
+    // Crear parámetros de entidad
+    let entity: EntityParams;
+
+    if (modeloNegocioId) {
+      entity = {
+        entityType: EntityType.BUSINESS_MODEL,
+        entityId: modeloNegocioId
+      };
+    } else {
+      const primerModelo = await prismaWrapper.modelos_negocio.findFirst({
+        where: { activo: true }
+      });
+
+      if (!primerModelo) {
+        return [];
+      }
+
+      entity = {
+        entityType: EntityType.BUSINESS_MODEL,
+        entityId: primerModelo.id
+      };
+    }
+
+    // Obtener historial
+    const history = await kpisServiceInstance.getKPIHistory(codigoKPI, entity, limite);
+
+    return history.map(h => ({
+      fechaInicio: h.period_start,
+      fechaFin: h.period_end,
+      valor: h.value,
+      fechaCalculo: h.calculated_at
+    }));
+  } catch (error) {
+    console.error('Error en obtenerHistoricoKPI:', error);
+    return [];
+  }
+}

@@ -34,7 +34,10 @@
       "Bash([ -s \"$NVM_DIR/nvm.sh\" ])",
       "Bash(. \"$NVM_DIR/nvm.sh\")",
       "Bash(find:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(echo:*)",
+      "Bash(export CORS_ORIGIN=\"http://localhost:5173\")",
+      "Bash(pkill:*)"
     ],
     "deny": [],
     "ask": []
