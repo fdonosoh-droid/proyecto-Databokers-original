@@ -114,6 +114,7 @@ export const dashboardApi = baseApi.injectEndpoints({
         url: '/dashboard/statistics',
         params: filters || {},
       }),
+      transformResponse: (response: any) => response.data || {},
       providesTags: ['Dashboard'],
       keepUnusedDataFor: 300,
     }),
@@ -121,6 +122,7 @@ export const dashboardApi = baseApi.injectEndpoints({
     // Obtener alertas del dashboard
     getDashboardAlerts: builder.query<Alert[], void>({
       query: () => '/dashboard/alerts',
+      transformResponse: (response: any) => response.data || [],
       providesTags: ['Dashboard'],
       // Polling cada 2 minutos para alertas
       keepUnusedDataFor: 120,
@@ -132,6 +134,7 @@ export const dashboardApi = baseApi.injectEndpoints({
         url: '/dashboard/recent-activity',
         params: { limit },
       }),
+      transformResponse: (response: any) => response.data || [],
       providesTags: ['Dashboard'],
     }),
 
