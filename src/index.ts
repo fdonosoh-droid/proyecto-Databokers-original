@@ -82,21 +82,21 @@ app.get('/', (req: Request, res: Response) => {
       api: {
         auth: '/api/auth',
         users: '/api/users',
-        properties: '/api/properties',
+        properties: '/api/properties (también /api/propiedades)',
         businessModels: '/api/business-models',
         domains: '/api/domains',
         dashboard: '/api/dashboard',
-        projects: '/api/projects',
-        publications: '/api/publications',
+        projects: '/api/projects (también /api/proyectos)',
+        publications: '/api/publications (también /api/publicaciones)',
         reports: '/api/reports',
-        tradeins: '/api/trade-ins',
+        tradeins: '/api/trade-ins (también /api/canjes)',
       },
     },
     documentation: 'https://github.com/databrokers/api-docs',
   });
 });
 
-// Registrar rutas de módulos
+// Registrar rutas de módulos (inglés)
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/properties', propertiesRoutes);
@@ -107,6 +107,12 @@ app.use('/api/projects', projectsRoutes);
 app.use('/api/publications', publicationsRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/trade-ins', tradeinsRoutes);
+
+// Registrar rutas alternativas en español (para compatibilidad con frontend)
+app.use('/api/propiedades', propertiesRoutes);
+app.use('/api/proyectos', projectsRoutes);
+app.use('/api/publicaciones', publicationsRoutes);
+app.use('/api/canjes', tradeinsRoutes);
 
 // =====================================================
 // MANEJO DE ERRORES
