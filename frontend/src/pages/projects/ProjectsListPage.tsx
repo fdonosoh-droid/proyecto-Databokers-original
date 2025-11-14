@@ -36,7 +36,9 @@ import {
   Delete as DeleteIcon,
   Visibility as ViewIcon,
   FileDownload as ExportIcon,
+  Upload as UploadIcon,
 } from '@mui/icons-material';
+import * as XLSX from 'xlsx';
 import { useGetProjectsQuery, useDeleteProjectMutation } from '../../redux/api/projectsApi';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import EmptyState from '../../components/common/EmptyState';
@@ -56,7 +58,7 @@ export default function ProjectsListPage() {
   });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<{ id: string; nombre: string } | null>(null);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
     open: false,
     message: '',
     severity: 'success',
@@ -99,34 +101,31 @@ export default function ProjectsListPage() {
     }
 
     try {
-      // Importar xlsx dinámicamente
-      import('xlsx').then((XLSX) => {
-        // Preparar datos para exportar
-        const exportData = projects.map((project) => ({
-          'Nombre': project.nombre,
-          'Dirección': project.direccion,
-          'Inmobiliaria': project.inmobiliaria?.nombre || 'N/A',
-          'Estado': project.estado.replace('_', ' '),
-          'Total Unidades': project.totalUnidades,
-          'Unidades Disponibles': project.unidadesDisponibles,
-          'Fecha Entrega': new Date(project.fechaEntrega).toLocaleDateString('es-CL'),
-          'Modelo de Negocio': project.modeloNegocio.replace('_', ' '),
-        }));
+      // Preparar datos para exportar
+      const exportData = projects.map((project) => ({
+        'Nombre': project.nombre,
+        'Dirección': project.direccion,
+        'Inmobiliaria': project.inmobiliaria?.nombre || 'N/A',
+        'Estado': project.estado.replace('_', ' '),
+        'Total Unidades': project.totalUnidades,
+        'Unidades Disponibles': project.unidadesDisponibles,
+        'Fecha Entrega': new Date(project.fechaEntrega).toLocaleDateString('es-CL'),
+        'Modelo de Negocio': project.modeloNegocio.replace('_', ' '),
+      }));
 
-        // Crear workbook y worksheet
-        const ws = XLSX.utils.json_to_sheet(exportData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Proyectos');
+      // Crear workbook y worksheet
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Proyectos');
 
-        // Generar archivo y descargarlo
-        const fileName = `proyectos_${new Date().toISOString().split('T')[0]}.xlsx`;
-        XLSX.writeFile(wb, fileName);
+      // Generar archivo y descargarlo
+      const fileName = `proyectos_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
 
-        setSnackbar({
-          open: true,
-          message: 'Proyectos exportados exitosamente',
-          severity: 'success',
-        });
+      setSnackbar({
+        open: true,
+        message: 'Proyectos exportados exitosamente',
+        severity: 'success',
       });
     } catch (error) {
       setSnackbar({
@@ -135,6 +134,14 @@ export default function ProjectsListPage() {
         severity: 'error',
       });
     }
+  };
+
+  const handleBulkUpload = () => {
+    setSnackbar({
+      open: true,
+      message: 'Funcionalidad de carga masiva próximamente disponible',
+      severity: 'info',
+    });
   };
 
   const handleDeleteClick = (id: string, nombre: string) => {
@@ -193,6 +200,13 @@ export default function ProjectsListPage() {
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <PageTitle title="Proyectos" subtitle="Gestión de proyectos inmobiliarios" />
         <Box display="flex" gap={2}>
+          <Button
+            variant="outlined"
+            startIcon={<UploadIcon />}
+            onClick={handleBulkUpload}
+          >
+            Carga Masiva
+          </Button>
           <Button
             variant="outlined"
             startIcon={<ExportIcon />}
