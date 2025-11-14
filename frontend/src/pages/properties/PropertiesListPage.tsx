@@ -26,6 +26,13 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -38,7 +45,7 @@ import {
   Bathtub as BathIcon,
   DirectionsCar as ParkingIcon,
 } from '@mui/icons-material';
-import { useGetPropertiesQuery } from '../../redux/api/propertiesApi';
+import { useGetPropertiesQuery, useDeletePropertyMutation } from '../../redux/api/propertiesApi';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import EmptyState from '../../components/common/EmptyState';
 import PageTitle from '../../components/common/PageTitle';
@@ -58,6 +65,13 @@ export default function PropertiesListPage() {
     modeloNegocio: '',
     search: '',
   });
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [propertyToDelete, setPropertyToDelete] = useState<{ id: string; direccion: string } | null>(null);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
 
   const { data, isLoading, error } = useGetPropertiesQuery({
     page: page + 1,
@@ -69,6 +83,8 @@ export default function PropertiesListPage() {
       ...(filters.search && { search: filters.search }),
     },
   });
+
+  const [deleteProperty, { isLoading: isDeleting }] = useDeletePropertyMutation();
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
@@ -82,6 +98,41 @@ export default function PropertiesListPage() {
   const handleFilterChange = (field: string, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
     setPage(0);
+  };
+
+  const handleDeleteClick = (id: string, direccion: string) => {
+    setPropertyToDelete({ id, direccion });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!propertyToDelete) return;
+
+    try {
+      await deleteProperty(propertyToDelete.id).unwrap();
+      setSnackbar({
+        open: true,
+        message: `Propiedad "${propertyToDelete.direccion}" eliminada exitosamente`,
+        severity: 'success',
+      });
+      setDeleteDialogOpen(false);
+      setPropertyToDelete(null);
+    } catch (error: any) {
+      setSnackbar({
+        open: true,
+        message: error?.data?.message || 'Error al eliminar la propiedad',
+        severity: 'error',
+      });
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setPropertyToDelete(null);
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   const getEstadoColor = (estado: string) => {
@@ -276,7 +327,12 @@ export default function PropertiesListPage() {
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Eliminar">
-                      <IconButton size="small" color="error">
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => handleDeleteClick(property.id, property.direccion)}
+                        disabled={isDeleting}
+                      >
                         <DeleteIcon />
                       </IconButton>
                     </Tooltip>
@@ -389,6 +445,41 @@ export default function PropertiesListPage() {
           </Box>
         </>
       )}
+
+      {/* Dialog de confirmación de eliminación */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteCancel}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+      >
+        <DialogTitle id="delete-dialog-title">Confirmar eliminación</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-dialog-description">
+            ¿Está seguro que desea eliminar la propiedad "{propertyToDelete?.direccion}"? Esta acción no se puede deshacer.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel} disabled={isDeleting}>
+            Cancelar
+          </Button>
+          <Button onClick={handleDeleteConfirm} color="error" variant="contained" disabled={isDeleting}>
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar para notificaciones */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
