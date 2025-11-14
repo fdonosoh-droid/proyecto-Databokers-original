@@ -9,6 +9,8 @@ import {
   TextField,
   MenuItem,
   IconButton,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import { ArrowBack as BackIcon } from '@mui/icons-material';
 import {
@@ -55,6 +57,11 @@ export default function ProjectFormPage() {
 
   const [formData, setFormData] = useState<ProjectFormData>(initialFormData);
   const [errors, setErrors] = useState<Partial<ProjectFormData>>({});
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
 
   const { data: project, isLoading: loadingProject } = useGetProjectByIdQuery(id!, {
     skip: !isEdit,
@@ -132,12 +139,26 @@ export default function ProjectFormPage() {
     try {
       if (isEdit) {
         await updateProject({ id: id!, data }).unwrap();
+        setSnackbar({
+          open: true,
+          message: 'Proyecto actualizado exitosamente',
+          severity: 'success',
+        });
       } else {
         await createProject(data).unwrap();
+        setSnackbar({
+          open: true,
+          message: 'Proyecto creado exitosamente',
+          severity: 'success',
+        });
       }
-      navigate('/proyectos');
-    } catch (error) {
-      console.error('Error al guardar proyecto:', error);
+      setTimeout(() => navigate('/proyectos'), 1500);
+    } catch (error: any) {
+      setSnackbar({
+        open: true,
+        message: error?.data?.message || 'Error al guardar el proyecto',
+        severity: 'error',
+      });
     }
   };
 
@@ -147,6 +168,10 @@ export default function ProjectFormPage() {
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   if (loadingProject) return <LoadingSpinner />;
@@ -338,6 +363,18 @@ export default function ProjectFormPage() {
           </form>
         </CardContent>
       </Card>
+
+      {/* Snackbar para notificaciones */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
