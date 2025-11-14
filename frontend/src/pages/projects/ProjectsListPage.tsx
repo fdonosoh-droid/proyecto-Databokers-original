@@ -37,6 +37,7 @@ import {
   Visibility as ViewIcon,
   FileDownload as ExportIcon,
   Upload as UploadIcon,
+  HelpOutline as HelpIcon,
 } from '@mui/icons-material';
 import * as XLSX from 'xlsx';
 import { useGetProjectsQuery, useDeleteProjectMutation } from '../../redux/api/projectsApi';
@@ -58,6 +59,7 @@ export default function ProjectsListPage() {
   });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<{ id: string; nombre: string } | null>(null);
+  const [helpDialogOpen, setHelpDialogOpen] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' }>({
     open: false,
     message: '',
@@ -137,11 +139,30 @@ export default function ProjectsListPage() {
   };
 
   const handleBulkUpload = () => {
-    setSnackbar({
-      open: true,
-      message: 'Funcionalidad de carga masiva próximamente disponible',
-      severity: 'info',
-    });
+    // Crear input de archivo temporal
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.xlsx,.xls,.csv';
+    input.onchange = (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
+      if (file) {
+        setSnackbar({
+          open: true,
+          message: `Archivo "${file.name}" seleccionado. Funcionalidad de procesamiento próximamente disponible.`,
+          severity: 'info',
+        });
+      }
+    };
+    input.click();
+  };
+
+  const handleHelpDialogOpen = () => {
+    setHelpDialogOpen(true);
+  };
+
+  const handleHelpDialogClose = () => {
+    setHelpDialogOpen(false);
   };
 
   const handleDeleteClick = (id: string, nombre: string) => {
@@ -200,13 +221,24 @@ export default function ProjectsListPage() {
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <PageTitle title="Proyectos" subtitle="Gestión de proyectos inmobiliarios" />
         <Box display="flex" gap={2}>
-          <Button
-            variant="outlined"
-            startIcon={<UploadIcon />}
-            onClick={handleBulkUpload}
-          >
-            Carga Masiva
-          </Button>
+          <Box display="flex" gap={0.5} alignItems="center">
+            <Button
+              variant="outlined"
+              startIcon={<UploadIcon />}
+              onClick={handleBulkUpload}
+            >
+              Carga Masiva
+            </Button>
+            <Tooltip title="Ver estructura de carga">
+              <IconButton
+                size="small"
+                onClick={handleHelpDialogOpen}
+                sx={{ ml: -0.5 }}
+              >
+                <HelpIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
           <Button
             variant="outlined"
             startIcon={<ExportIcon />}
@@ -400,6 +432,112 @@ export default function ProjectsListPage() {
           </Button>
           <Button onClick={handleDeleteConfirm} color="error" variant="contained" disabled={isDeleting}>
             Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog de ayuda para carga masiva */}
+      <Dialog
+        open={helpDialogOpen}
+        onClose={handleHelpDialogClose}
+        maxWidth="md"
+        fullWidth
+        aria-labelledby="help-dialog-title"
+      >
+        <DialogTitle id="help-dialog-title">
+          Estructura de Carga Masiva de Proyectos
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              Extensiones Permitidas
+            </Typography>
+            <Typography variant="body2" color="text.secondary" paragraph>
+              • Excel (.xlsx, .xls)
+              <br />
+              • CSV (.csv)
+            </Typography>
+
+            <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
+              Estructura del Archivo
+            </Typography>
+            <Typography variant="body2" color="text.secondary" paragraph>
+              El archivo debe contener las siguientes columnas en el orden indicado:
+            </Typography>
+
+            <TableContainer component={Paper} variant="outlined" sx={{ mb: 2 }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell><strong>Columna</strong></TableCell>
+                    <TableCell><strong>Tipo</strong></TableCell>
+                    <TableCell><strong>Requerido</strong></TableCell>
+                    <TableCell><strong>Descripción</strong></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>Nombre</TableCell>
+                    <TableCell>Texto</TableCell>
+                    <TableCell>Sí</TableCell>
+                    <TableCell>Nombre del proyecto</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Dirección</TableCell>
+                    <TableCell>Texto</TableCell>
+                    <TableCell>Sí</TableCell>
+                    <TableCell>Dirección completa del proyecto</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Estado</TableCell>
+                    <TableCell>Texto</TableCell>
+                    <TableCell>Sí</TableCell>
+                    <TableCell>ACTIVO | INACTIVO | EN_CONSTRUCCION | FINALIZADO</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Total Unidades</TableCell>
+                    <TableCell>Número</TableCell>
+                    <TableCell>Sí</TableCell>
+                    <TableCell>Cantidad total de unidades</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Unidades Disponibles</TableCell>
+                    <TableCell>Número</TableCell>
+                    <TableCell>Sí</TableCell>
+                    <TableCell>Cantidad de unidades disponibles</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Fecha Entrega</TableCell>
+                    <TableCell>Fecha</TableCell>
+                    <TableCell>Sí</TableCell>
+                    <TableCell>Formato: DD/MM/AAAA o AAAA-MM-DD</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Modelo de Negocio</TableCell>
+                    <TableCell>Texto</TableCell>
+                    <TableCell>Sí</TableCell>
+                    <TableCell>VENTA_DIRECTA | PREVENTA | CONSIGNACION | CANJE</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Inmobiliaria</TableCell>
+                    <TableCell>Texto</TableCell>
+                    <TableCell>No</TableCell>
+                    <TableCell>Nombre de la inmobiliaria</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            <Alert severity="info" sx={{ mt: 2 }}>
+              <Typography variant="body2">
+                <strong>Nota:</strong> Puede descargar un ejemplo exportando los proyectos existentes usando el botón "Exportar".
+              </Typography>
+            </Alert>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleHelpDialogClose} variant="contained">
+            Entendido
           </Button>
         </DialogActions>
       </Dialog>
