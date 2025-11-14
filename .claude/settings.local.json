@@ -52,7 +52,8 @@
       "Bash(claude/sprint-8-phase-4-011CV2sHuY4iCTZYDnYzdbTt )",
       "Bash(claude/sprint-three-docs-011CV2s9VHa4rF6KM8NCps9p )",
       "Bash(claude/sprint-two-docs-011CV2qajpuNHBFPxJP6fbJN )",
-      "Bash(claude/update-progress-nov-2025-011CV2ZvjVFUSoRzzVzoGRN6)"
+      "Bash(claude/update-progress-nov-2025-011CV2ZvjVFUSoRzzVzoGRN6)",
+      "Bash(PGPASSWORD=admin psql:*)"
     ],
     "deny": [],
     "ask": []
