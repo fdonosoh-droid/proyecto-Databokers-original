@@ -242,7 +242,7 @@ export async function listTradeIns(req: Request, res: Response) {
       fecha_inicio_desde,
       fecha_inicio_hasta,
       buscar,
-      sort_by = 'fecha_creacion',
+      sort_by = 'created_at',
       sort_order = 'desc'
     } = req.query;
 

@@ -18,7 +18,7 @@ export default function PublicationsChart({ data }: PublicationsChartProps) {
           Publicaciones Activas
         </Typography>
         <Box sx={{ width: '100%', height: 300 }}>
-          <ResponsiveContainer>
+          <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={data}

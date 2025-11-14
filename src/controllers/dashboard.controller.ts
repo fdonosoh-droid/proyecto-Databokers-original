@@ -466,7 +466,7 @@ async function obtenerAlertasActivas(limite: number = 10): Promise<any[]> {
     take: limite,
     orderBy: [
       { prioridad_id: 'desc' },
-      { fecha_creacion: 'desc' }
+      { created_at: 'desc' }
     ],
     include: {
       tipo_alerta: {
@@ -497,7 +497,7 @@ async function obtenerAlertasActivas(limite: number = 10): Promise<any[]> {
     nivel: a.nivel_alerta?.valor_texto,
     titulo: a.titulo,
     mensaje: a.mensaje,
-    fecha: a.fecha_creacion
+    fecha: a.created_at
   }));
 }
 

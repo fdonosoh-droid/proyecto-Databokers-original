@@ -350,7 +350,7 @@ export async function listPublications(req: Request, res: Response) {
       tipo_exclusividad,
       vencimiento,
       buscar,
-      sort_by = 'fecha_creacion',
+      sort_by = 'created_at',
       sort_order = 'desc'
     } = req.query;
 

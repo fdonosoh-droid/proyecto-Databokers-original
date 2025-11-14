@@ -226,7 +226,7 @@ export default function PropertiesListPage() {
                       {property.superficie} m²
                     </Typography>
                   </TableCell>
-                  <TableCell>{property.tipo.replace('_', ' ')}</TableCell>
+                  <TableCell>{property.tipo?.replace('_', ' ') || '-'}</TableCell>
                   <TableCell>
                     {property.comuna}, {property.region}
                   </TableCell>

@@ -644,7 +644,7 @@ export async function listScheduledReports(req: Request, res: Response) {
         }
       },
       orderBy: {
-        fecha_creacion: 'desc'
+        created_at: 'desc'
       }
     });
 

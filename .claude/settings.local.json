@@ -37,7 +37,22 @@
       "Bash(git restore:*)",
       "Bash(echo:*)",
       "Bash(export CORS_ORIGIN=\"http://localhost:5173\")",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(claude/analyze-data-schema-error-01QesZdAukBFnANsm9oGcFjH )",
+      "Bash(claude/analyze-production-011CV2XNxUUopE13wb8Pos4u )",
+      "Bash(claude/fix-pr-10-issue-011CV2u2rSqY7iMGFLA1GzWu )",
+      "Bash(claude/fix-pr-9-issues-011CV2xP4Xmi8Sacx2iKiCnd )",
+      "Bash(claude/implement-missing-api-endpoints-01WTozHHqaRayyV5PYf56iKN )",
+      "Bash(claude/phase-4-sprints-summary-011CV35B6CTdsDtZCnu2Pk8U )",
+      "Bash(claude/plan-phase-4-sprints-011CV2puwKsHRdMjEY7MMo3g )",
+      "Bash(claude/sprint-4-docs-011CV2sAwHnfgW6whs85XQmx)",
+      "Bash(claude/sprint-5-phase-4-011CV2sCFbPRLNuWWCY5M71i )",
+      "Bash(claude/sprint-6-phase-4-011CV2sEBLUG65xCiknftS5S )",
+      "Bash(claude/sprint-7-phase-4-011CV2sGQZW8uCC26jbLDqRj )",
+      "Bash(claude/sprint-8-phase-4-011CV2sHuY4iCTZYDnYzdbTt )",
+      "Bash(claude/sprint-three-docs-011CV2s9VHa4rF6KM8NCps9p )",
+      "Bash(claude/sprint-two-docs-011CV2qajpuNHBFPxJP6fbJN )",
+      "Bash(claude/update-progress-nov-2025-011CV2ZvjVFUSoRzzVzoGRN6)"
     ],
     "deny": [],
     "ask": []

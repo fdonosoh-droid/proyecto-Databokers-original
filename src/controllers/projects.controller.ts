@@ -220,7 +220,7 @@ export async function listProjects(req: Request, res: Response) {
       region_id,
       inmobiliaria,
       buscar,
-      sort_by = 'fecha_creacion',
+      sort_by = 'created_at',
       sort_order = 'desc'
     } = req.query;
 
