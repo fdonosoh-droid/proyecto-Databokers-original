@@ -28,8 +28,8 @@ import {
   DialogActions,
   Snackbar,
   Alert,
+  Grid,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 import {
   Add as AddIcon,
   Edit as EditIcon,
@@ -213,7 +213,7 @@ export default function ProjectsListPage() {
       {/* Filtros */}
       <Card sx={{ p: 2, mb: 3 }}>
         <Grid container spacing={2}>
-          <Grid size={{ xs: 12, md: 4 }}>
+          <Grid item xs={12} md={4}>
             <TextField
               fullWidth
               label="Buscar por nombre"
@@ -223,7 +223,7 @@ export default function ProjectsListPage() {
               onChange={(e) => handleFilterChange('search', e.target.value)}
             />
           </Grid>
-          <Grid size={{ xs: 12, md: 4 }}>
+          <Grid item xs={12} md={4}>
             <FormControl fullWidth size="small">
               <InputLabel>Estado</InputLabel>
               <Select
@@ -240,7 +240,7 @@ export default function ProjectsListPage() {
               </Select>
             </FormControl>
           </Grid>
-          <Grid size={{ xs: 12, md: 4 }}>
+          <Grid item xs={12} md={4}>
             <FormControl fullWidth size="small">
               <InputLabel>Modelo de Negocio</InputLabel>
               <Select
