@@ -9,20 +9,19 @@ import {
   Card,
   CardContent,
 } from '@mui/material';
-// TODO: Install @mui/lab for Timeline components
-// import {
-//   Timeline,
-//   TimelineItem,
-//   TimelineSeparator,
-//   TimelineConnector,
-//   TimelineContent,
-//   TimelineDot,
-//   TimelineOppositeContent,
-// } from '@mui/lab';
 import {
-  // CheckCircle as CheckCircleIcon,
-  // Cancel as CancelIcon,
-  // HourglassEmpty as HourglassIcon,
+  Timeline,
+  TimelineItem,
+  TimelineSeparator,
+  TimelineConnector,
+  TimelineContent,
+  TimelineDot,
+  TimelineOppositeContent,
+} from '@mui/lab';
+import {
+  CheckCircle as CheckCircleIcon,
+  Cancel as CancelIcon,
+  HourglassEmpty as HourglassIcon,
   Edit as EditIcon,
 } from '@mui/icons-material';
 import { useGetTradeInByIdQuery } from '../../redux/api/tradeInsApi';
@@ -31,13 +30,24 @@ import { LoadingSpinner } from '../../components/common';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-const estadoColors: Record<TradeInEstado, 'default' | 'primary' | 'success' | 'error' | 'warning' | 'info'> = {
+// Colores para Chip component
+const estadoColorsChip: Record<TradeInEstado, 'default' | 'primary' | 'success' | 'error' | 'warning' | 'info'> = {
   INICIADO: 'info',
   EN_EVALUACION: 'warning',
   APROBADO: 'success',
   RECHAZADO: 'error',
   FINALIZADO: 'success',
   CANCELADO: 'default',
+};
+
+// Colores para TimelineDot component
+const estadoColorsTimeline: Record<TradeInEstado, 'grey' | 'primary' | 'success' | 'error' | 'warning' | 'info'> = {
+  INICIADO: 'info',
+  EN_EVALUACION: 'warning',
+  APROBADO: 'success',
+  RECHAZADO: 'error',
+  FINALIZADO: 'success',
+  CANCELADO: 'grey',
 };
 
 const estadoLabels: Record<TradeInEstado, string> = {
@@ -77,8 +87,7 @@ export default function TradeInDetail({
     });
   };
 
-  // TODO: Uncomment when Timeline component is enabled
-  /* const getTimelineIcon = (estado: TradeInEstado) => {
+  const getTimelineIcon = (estado: TradeInEstado) => {
     switch (estado) {
       case 'APROBADO':
       case 'FINALIZADO':
@@ -89,7 +98,7 @@ export default function TradeInDetail({
       default:
         return <HourglassIcon />;
     }
-  }; */
+  };
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -113,7 +122,7 @@ export default function TradeInDetail({
           </Typography>
           <Chip
             label={estadoLabels[tradeIn.estado]}
-            color={estadoColors[tradeIn.estado]}
+            color={estadoColorsChip[tradeIn.estado]}
           />
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -281,18 +290,14 @@ export default function TradeInDetail({
             Historial de Estados
           </Typography>
           <Divider sx={{ mb: 2 }} />
-          {/* TODO: Install @mui/lab for Timeline component */}
-          <Typography variant="body2" color="text.secondary">
-            Timeline component requires @mui/lab package
-          </Typography>
-          {/* <Timeline>
+          <Timeline>
             {tradeIn.timeline.map((event, index) => (
               <TimelineItem key={event.id}>
                 <TimelineOppositeContent color="text.secondary">
                   {formatDate(event.fecha)}
                 </TimelineOppositeContent>
                 <TimelineSeparator>
-                  <TimelineDot color={estadoColors[event.estado]}>
+                  <TimelineDot color={estadoColorsTimeline[event.estado]}>
                     {getTimelineIcon(event.estado)}
                   </TimelineDot>
                   {index < tradeIn.timeline!.length - 1 && <TimelineConnector />}
@@ -312,7 +317,7 @@ export default function TradeInDetail({
                 </TimelineContent>
               </TimelineItem>
             ))}
-          </Timeline> */}
+          </Timeline>
         </Paper>
       )}
 
