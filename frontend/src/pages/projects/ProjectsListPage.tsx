@@ -39,7 +39,6 @@ import {
   Upload as UploadIcon,
   HelpOutline as HelpIcon,
 } from '@mui/icons-material';
-import * as XLSX from 'xlsx';
 import { useGetProjectsQuery, useDeleteProjectMutation } from '../../redux/api/projectsApi';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import EmptyState from '../../components/common/EmptyState';
@@ -92,7 +91,7 @@ export default function ProjectsListPage() {
     setPage(0);
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (!projects || projects.length === 0) {
       setSnackbar({
         open: true,
@@ -103,6 +102,9 @@ export default function ProjectsListPage() {
     }
 
     try {
+      // Cargar XLSX solo cuando se necesita exportar
+      const XLSX = await import('xlsx');
+
       // Preparar datos para exportar
       const exportData = projects.map((project) => ({
         'Nombre': project.nombre,
